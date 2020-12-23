@@ -37,11 +37,9 @@ class FacultySerializer(serializers.DocumentSerializer):
         fields = '__all__'
         
 class StudentsSerializer(serializers.DocumentSerializer):
-    faculty = FacultySerializer()
     class Meta:
         model = Students
         fields = '__all__'
-        depth = 2
     
 class CoursesPerMajorSerializer(serializers.DocumentSerializer):
     class Meta:

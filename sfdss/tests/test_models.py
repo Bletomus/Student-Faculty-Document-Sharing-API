@@ -3,12 +3,14 @@ from mongoengine import connect, disconnect
 from sfdss.models import *
 from datetime import datetime
 from tests.ModelCreation import CreateModels
+from resources.Constants import FakeDataBaseConstants
+const_Fake_db = FakeDataBaseConstants()
 
 class ModelsTest(unittest.TestCase):
     
     @classmethod
     def setUpClass(cls):
-        connect('mongoenginetest', host='mongomock://localhost', alias='testdb')
+        connect(db=const_Fake_db.db_Name, host=const_Fake_db.host, alias=const_Fake_db.alias)
         
     @classmethod
     def tearDownClass(cls):
@@ -43,7 +45,7 @@ class ModelsTest(unittest.TestCase):
 
         test_building = model.createBuilding(test_campus)
         
-        assert test_building.campus ==  test_campus,"Campus is wrong"
+        assert test_building.building_campus ==  test_campus,"Campus is wrong"
         assert test_building.building ==  "A","Building name is wrong"
         assert test_building.room_number == 101 ,"Building number is wrong"
         
@@ -52,7 +54,7 @@ class ModelsTest(unittest.TestCase):
         test_major = model.createMajors(test_dept)
         
         assert test_major.major == "Comp", "The major is missing"
-        assert test_major.department == test_dept, "The department is missing"
+        assert test_major.major_department == test_dept, "The department is missing"
         
         test_faculty = model.createFaculty(test_major)
         
@@ -61,20 +63,32 @@ class ModelsTest(unittest.TestCase):
         assert test_faculty.gender  == "Male", "Gender is incorrect"
         assert test_faculty.nationality  == "China", "Country is incorrect"
         assert test_faculty.phone_number  == [13071838053,12334555], "Number is incorrect"
-        assert test_faculty.major  == test_major, "Major is incorrect"
+        assert test_faculty.faculty_major  == test_major, "Major is incorrect"
         
         time = datetime.utcnow()
         test_student = model.createStudent(test_major)
         
-        assert test_student.person_name  == "John", "Persons name is incorrect"
-        assert test_student.person_number  == 1712510105, "Persons number is incorrect"
-        assert test_student.gender  == "Male", "Gender is incorrect"
-        assert test_student.nationality  == "China", "Country is incorrect"
-        assert test_student.phone_number  == [13071838053], "Number is incorrect"
-        assert test_student.major  == test_major, "Major is incorrect"
+        assert test_student.student_name  == "John", "Persons name is incorrect"
+        assert test_student.student_number  == 1712510105, "Persons number is incorrect"
+        assert test_student.student_gender  == "Male", "Gender is incorrect"
+        assert test_student.student_nationality  == "China", "Country is incorrect"
+        assert test_student.student_phone_number  == [13071838053], "Number is incorrect"
+        assert test_student.student_major  == test_major, "Major is incorrect"
         assert test_student.id_type  == "Passport", "Passport is incorrect"
-        assert test_student.enrollment_date  == time, "Time is incorrect"
         assert test_student.origin_country  == "China", "Country is incorrect"
         assert test_student.place_of_birth  == "Harare", "City is incorrect"
         
+        test_cpm = model.createCoursesPerMajor(test_major=test_major,test_course=test_course)
+        
+        assert test_cpm.major_cpm == Majors.objects().first(),"Major is incorrect"
+        assert test_cpm.module == 1,"module is incorrect"
+        assert test_cpm.elective == False,"elective is incorrect"
+        assert test_cpm.course_cpm == test_course ,"course is incorrect"
+        ll=test_student
+        test_st = model.createStudentTakes(ts=ll,test_course=test_course,test_semester=test_semester)
+        
+        assert test_st.student_taking == test_student,"student is incorrect"
+        assert test_st.year == 2020,"year is incorrect"
+        assert test_st.course_taken == Courses.objects().first(),"course is incorrect"
+        assert test_st.semester_taken == Semesters.objects().first(),"Semesters is incorrect"
         

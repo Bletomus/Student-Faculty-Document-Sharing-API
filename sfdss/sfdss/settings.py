@@ -11,10 +11,12 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
-from resources.Constants import DatabaseConstants
+from resources.Constants import DatabaseConstants,FakeDataBaseConstants
 const = DatabaseConstants()
+const_Fake_db = FakeDataBaseConstants()
 import mongoengine
 mongoengine.connect(db=const.db_Name)
+#mongoengine.connect(const_Fake_db.db_Name, host=const_Fake_db.host, alias=const_Fake_db.alias)
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 

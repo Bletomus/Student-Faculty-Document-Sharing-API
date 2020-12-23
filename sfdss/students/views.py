@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from sfdss.models import Students
 from sfdss.serializers import StudentsSerializer
+from tests.ModelCreation import CreateModels
 
 @api_view(['Get'])
 def get_student_details(request,person_id):
@@ -23,13 +24,13 @@ def get_student_details(request,person_id):
 
     """
     try:
-        students = Students.objects(person_number=person_id)
+        students = Students.objects.get(person_number=person_id)
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
-        # serializer = StudentsSerializer(students)
-        # return Response(serializer.data)
-        return Response({})
+        serializer = StudentsSerializer(students,)
+        return Response(serializer.data)
+        #return Response({})
 
 

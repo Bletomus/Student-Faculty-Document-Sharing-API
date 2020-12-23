@@ -20,7 +20,26 @@ class DatabaseConstants:
         self.db_Name = "sfdsms"
         self.host = "127.0.0.1"
         self.port = 27017
+
+class FakeDataBaseConstants:
+    """
+    FakeDataBaseConstants contains the constants to connect to the fake database for mongomock
     
+    Constants
+    ----------
+    db_Name : String
+        References that name of the database in use
+    host : Address
+        References the IP address of the database that is in use
+    
+    alias : String
+        References the other name to identify the database 
+    """
+    def __init__(self):
+        self.alias = "testdb"
+        self.host = 'mongomock://localhost'
+        self.db_Name = 'mongoenginetest'
+        
 class ModelConstants:
     """
     ModelConstants : ModelConstants contain the constants used for schema like constraints and other document functions
@@ -44,6 +63,8 @@ class ModelConstants:
         Tuple of the modules the schoo offers
     grades : Tuple of Character String
         Tuple of the grading that the scores can be identified with
+    years : Tuple of Integers
+        Turple of the permisable years a client can enter into the database
     """
     def __init__(self):
         self.campuses = ("Jinshagang","Heinan")
@@ -56,3 +77,4 @@ class ModelConstants:
         self.nationalities = ("China","Zimbabwe")
         self.modules = (1,2,3,4)
         self.grades = ("A","B","C","D","E","F")
+        self.years = tuple(sorted([j for j in range(2000,2100,1)]))

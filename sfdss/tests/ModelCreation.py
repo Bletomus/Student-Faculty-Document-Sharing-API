@@ -18,6 +18,8 @@ class CreateModels:
         Majors.drop_collection()
         Faculty.drop_collection()
         Students.drop_collection()
+        CoursesPerMajor.drop_collection()
+        StudentTakes.drop_collection()
         
     def createCampus(self):
         campus = Campus(campus = "Jinshagang" )
@@ -44,26 +46,55 @@ class CreateModels:
         return test_dept
     
     def createBuilding(self,test_campus):
-        building = Building(campus = test_campus,building = "A",room_number = 101 )
+        building = Building(building_campus = test_campus,building = "A",room_number = 101 )
         building.save()
         test_building = Building.objects().first()
         return test_building
     
     def createMajors(self,test_dept):
-        major = Majors(department=test_dept,major="Comp")
+        major = Majors(major_department=test_dept,major="Comp")
         major.save()
         test_major = Majors.objects().first()
         return test_major
     
     def createStudent(self,test_major):
         time = datetime.utcnow()
-        student = Students(person_name = "John",person_number = 1712510105,gender = "Male",nationality = "China",phone_number = [13071838053],major = test_major,id_type="Passport",enrollment_date=time,origin_country="China",place_of_birth="Harare")
+        student = Students(student_name = "John",student_number = 1712510105,student_gender = "Male",student_nationality = "China",student_phone_number = [13071838053],student_major = test_major,id_type="Passport",enrollment_date=time,origin_country="China",place_of_birth="Harare")
         student.save()
         test_student = Students.objects().first()
         return test_student
     
     def createFaculty(self,test_major):
-        faculty = Faculty(person_name = "Mr_Teacher",person_number = 972500105,phone_number = [13071838053,12334555],gender = "Male",nationality = "China",major = test_major)
+        faculty = Faculty(person_name = "Mr_Teacher",person_number = 972500105,phone_number = [13071838053,12334555],gender = "Male",nationality = "China",faculty_major = test_major)
         faculty.save()
         test_faculty = Faculty.objects().first()
         return test_faculty
+    
+    def createCoursesPerMajor(self,test_major,test_course):
+        CPM = CoursesPerMajor(major_cpm=test_major,module =1,elective = False,course_cpm=test_course)
+        CPM.save()
+        test_cpm = CoursesPerMajor.objects().first()
+        return test_cpm
+    def createStudentTakes(self,ts,test_course,test_semester):
+        st = StudentTakes(student_taking=ts,year=2020,course_taken=test_course,semester_taken=test_semester)
+        st.save()
+        test_st = StudentTakes.objects().first()
+        return test_st
+        
+    def createStudentOP(self):
+        test_campus = self.createCampus() 
+        
+        test_semester = self.createSemester() 
+        
+        test_course = self.createCouse() 
+        
+        test_dept =self.createDepartment()
+        
+        test_building = self.createBuilding(test_campus)
+        
+        test_major = self.createMajors(test_dept)
+        
+        test_student = self.createStudent(test_major)
+    
+    
+        #return test_student

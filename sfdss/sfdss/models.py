@@ -19,6 +19,9 @@ models module contains the schema like design of how mongodb will store data as 
     Uploads : Contains informaiton about file that have been uploaded by the user
     Campus : Contains campuses and their information
 """
+
+
+
 class Campus(Document):
     """
     Campus : Contains campus and their information\n
@@ -76,13 +79,13 @@ class Building(Document):
     ----------
     building : Character String
         Building name
-    campus : Document
+    building_campus : Document
         The name of the campus the building belongs to\n
     room_number : Integer
         The room number of the course\n
     """
-    campus = ReferenceField(Campus,reverse_delete_rule=CASCADE,required = True)
-    building = StringField(required = True,unique_with=['campus'],choices = constants.buildings)
+    building_campus = ReferenceField(Campus,reverse_delete_rule=CASCADE,required = True)
+    building = StringField(required = True,unique_with=['building_campus'],choices = constants.buildings)
     room_number = IntField(required = True,unique_with=['building'], choices = constants.rooms )
     meta={'indexes' : [('building','+room_number')]}
     
@@ -92,12 +95,12 @@ class Majors(Document):
     Majors : Contains information relevant to the majors the school offers\n
     Fields
     ----------
-    department : Document
+    major_department : Document
         references the departments document and thus its information\n
     major : Character String
         name of the major\n
     """
-    department = ReferenceField(Departments,required = True,reverse_delete_rule=CASCADE)
+    major_department = ReferenceField(Departments,required = True,reverse_delete_rule=DO_NOTHING)
     major = StringField(required = True,unique=True)
     
 class Faculty(Document):
@@ -115,7 +118,7 @@ class Faculty(Document):
         Country which issued the identification the person is using to enroll into the school\n
     phone_number : List of Long
         Contains a list of the phone numbers which can be used to contact the person\n
-    major : Character String
+    faculty_major : Character String
         The major the person belongs to\n
     """
     person_name = StringField(required = True)
@@ -123,15 +126,27 @@ class Faculty(Document):
     gender = StringField(required = True, choices = constants.genders )
     nationality = StringField(required = True, choices = constants.nationalities )
     phone_number = ListField(LongField(),default=list)
-    major = ReferenceField(Majors,required = True,reverse_delete_rule=DO_NOTHING)
+    faculty_major = ReferenceField(Majors,required = True,reverse_delete_rule=DO_NOTHING)
     
-    meta = {'allow_inheritance': True,'indexes' : ['person_number']}
+    meta = {'indexes' : ['person_number']}
     
-class Students(Faculty):
+class Students(Document):
     """
     Students : Contains information about all the students in the school
     Fields
     ----------
+    student_name : Character String
+        Name of the person\n
+    student_number : Long
+        Identifying id for the person\n
+    student_gender : Character String
+        Identifying the legal gender of the person\n
+    student_nationality : Character String
+        Country which issued the identification the person is using to enroll into the school\n
+    student_phone_number : List of Long
+        Contains a list of the phone numbers which can be used to contact the person\n
+    student_major : Character String
+        The major the person belongs to\n
     id_type : Character String
         The type of the form used to identify the student
     enrollment_date : Datetime
@@ -141,30 +156,37 @@ class Students(Faculty):
     place_of_birth : Character String
         The city or province the student was born in
     """
+    student_name = StringField(required = True)
+    student_number = LongField(required = True,unique=True)
+    student_gender = StringField(required = True, choices = constants.genders )
+    student_nationality = StringField(required = True, choices = constants.nationalities )
+    student_phone_number = ListField(LongField(),default=list)
+    student_major = ReferenceField(Majors,required = True,reverse_delete_rule=DO_NOTHING)
     id_type = StringField(required = True,choices=constants.id_type)
     enrollment_date = DateTimeField(required = True)
     origin_country = StringField(required = True,choices=constants.nationalities)
     place_of_birth = StringField(required = True)
+    meta = {'indexes' : ['student_number']}
     
 class CoursesPerMajor(Document):
     """
     CoursesPerMajor : Contains the courses contained in each major and relavant information about courses in the major
     Fields
     ----------
-    major : Document
+    major_cpm : Document
         Major of the corresponding course 
     module : Integer
         Module the corresponging course belongs to in its major
     elective : Boolean
         Whether or not the course is elective
-    course : Document
+    course_cpm : Document
         The course name and details
     """
     
-    major =  ReferenceField(Majors,required = True,reverse_delete_rule=CASCADE)
-    module = IntField(required = True,unique_with=['major'], choices = constants.modules)
+    major_cpm = ReferenceField(Majors,required = True,reverse_delete_rule=CASCADE)
+    module = IntField(required = True,unique_with=['major_cpm'], choices = constants.modules)
     elective = BooleanField(default=False)
-    course =  ReferenceField(Courses,required = True,unique_with=['major','module'],reverse_delete_rule=CASCADE)
+    course_cpm = ReferenceField(Courses,required = True,unique_with=['major_cpm','module'],reverse_delete_rule=CASCADE)
     
 
 class StudentTakes(Document):
@@ -172,19 +194,19 @@ class StudentTakes(Document):
     StudentTakes : Contains the information to do with which student takes what course
     Fields
     ----------
-    student : Document
+    student_taking : Document
         References the student taking the corresponding course
-    course : Document
+    course_taken : Document
         References the course being taken by the student
     year : Integer 
         Year the student will be taking a particular year
-    semester : Document
+    semester_taken : Document
         References the semester in which the student took the course 
     """
-    student = ReferenceField(Students,required = True,reverse_delete_rule=DO_NOTHING)
-    year = IntField(required = True)
-    course = ReferenceField(Courses,required = True)
-    semester = ReferenceField(Semesters,required = True)
+    student_taking = ReferenceField('Students',required = True,reverse_delete_rule=DO_NOTHING)
+    year = IntField(required = True,choices=constants.years)
+    course_taken = ReferenceField(Courses,required = True)
+    semester_taken = ReferenceField(Semesters,required = True)
     
 class SemesterScores(Document):
     """
@@ -210,10 +232,7 @@ class SemesterScores(Document):
     major : Document
         Major the course belongs to
     """
-    student = ReferenceField(Students,required = True,reverse_delete_rule=DO_NOTHING)
-    year = IntField(required = True)
-    semester = ReferenceField(Semesters,required = True,reverse_delete_rule=DO_NOTHING)
-    course = ReferenceField(Courses,required = True,reverse_delete_rule=DO_NOTHING)
+    student_took = ReferenceField(StudentTakes,required = True,reverse_delete_rule=DO_NOTHING)
     grade = StringField(required = True, choices = constants.grades)
     attempts = IntField(required = True)
     score = FloatField(required = True)
@@ -289,7 +308,7 @@ class Notifications(Document):
     notifications = StringField(required = True)
     type_ = StringField(required = True)
     time = DateTimeField(required = True)
-    upload = ReferenceField(Uploads,required = True,reverse_delete_rule=CASCADE)
+    upload = ReferenceField(Uploads,required = False ,reverse_delete_rule=CASCADE)
     department = ReferenceField(Departments,required = True,reverse_delete_rule=CASCADE)
     faculty = ReferenceField(Faculty,required = True,reverse_delete_rule=CASCADE)
     meta={'ordering' : '-time'}

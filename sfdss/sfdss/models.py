@@ -18,6 +18,7 @@ models module contains the schema like design of how mongodb will store data as 
     Faculty : Contains information about the teaching faculty at the school
     Uploads : Contains informaiton about file that have been uploaded by the user
     Campus : Contains campuses and their information
+    Teaches : Contains informaiton about the teaching schedule of teachers
 """
 
 
@@ -187,8 +188,8 @@ class CoursesPerMajor(Document):
     module = IntField(required = True,unique_with=['major_cpm'], choices = constants.modules)
     elective = BooleanField(default=False)
     course_cpm = ReferenceField(Courses,required = True,unique_with=['major_cpm','module'],reverse_delete_rule=CASCADE)
-    
 
+    
 class StudentTakes(Document):
     """
     StudentTakes : Contains the information to do with which student takes what course
@@ -208,13 +209,14 @@ class StudentTakes(Document):
     course_taken = ReferenceField(Courses,required = True)
     semester_taken = ReferenceField(Semesters,required = True)
     
+    
 class SemesterScores(Document):
     """
     SemesterScores : Contains the scores a student got in each semester
     Fields
     ----------
-    student : Document
-        Student information for the one who took the exam
+    student_took : Document
+        Student information for the one who took the exam and when he took the course
     year : Integer
         Year in which the student took the course
     semester : Document
@@ -229,7 +231,7 @@ class SemesterScores(Document):
         Score the student was award upon completing the course
     credits : Integer
         Credit the student was awarded upong completing the course
-    major : Document
+    major_exam : Document
         Major the course belongs to
     """
     student_took = ReferenceField(StudentTakes,required = True,reverse_delete_rule=DO_NOTHING)
@@ -237,34 +239,45 @@ class SemesterScores(Document):
     attempts = IntField(required = True)
     score = FloatField(required = True)
     credits_ = IntField(required = True)
-    major = ReferenceField(Majors,required = True,reverse_delete_rule=DO_NOTHING)
     
 class SemesterSchedule(Document):
     """
     SemesterSchedule : Contains the planned schedule for courses
     Fields
     ----------
-    course : Document
+    scheduled_course : Document
         References the course that is on the schedule
-    building : Document
+    scheduled_building : Document
         References the building venue
-    time : Datatime
+    scheduled_time : Datatime
         The time in which the course will be taken
-    year : Integer
+    scheduled_year : Integer
         The year the course is to be taken
-    semester : Document
+    scheduled_semester : Document
         References the semester the student has to partake in the course
-    major : Document
+    scheduled_major : Document
         References the major the student belongs to
     """
-    building = ReferenceField(Building,required = True,reverse_delete_rule=CASCADE)
-    year = IntField(required = True)
-    semester = ReferenceField(Semesters,required = True,reverse_delete_rule=CASCADE)
-    time = DateTimeField(required = True,unique_with=['semester','year','building'])
-    major = ReferenceField(Majors,required = True,reverse_delete_rule=CASCADE)
-    course = ReferenceField(Courses,required = True,unique_with=['building','time','year','semester'],reverse_delete_rule=CASCADE)
+    scheduled_building = ReferenceField(Building,required = True,reverse_delete_rule=CASCADE)
+    scheduled_year = IntField(required = True,choices = constants.years)
+    scheduled_semester = ReferenceField(Semesters,required = True,reverse_delete_rule=CASCADE)
+    scheduled_time = DateTimeField(required = True,unique_with=['scheduled_semester','scheduled_year','scheduled_building'])
+    scheduled_major = ReferenceField(Majors,required = True,reverse_delete_rule=CASCADE)
+    scheduled_course = ReferenceField(Courses,required = True,unique_with=['scheduled_building','scheduled_time','scheduled_year','scheduled_semester'],reverse_delete_rule=CASCADE)
     
-
+class Teaches(Document):
+    """
+    Teaches : Contains informaiton about the teaching schedule of teachers
+    Fields
+    ----------
+    teacher : Document
+        The name of the teacher in charge
+    teacher_schedule : Document
+        Contains the planned schedule for teacher in a particular course
+    """
+    teacher = ReferenceField(Faculty,required = True,reverse_delete_rule=CASCADE)
+    teacher_schedule = ReferenceField(SemesterSchedule,required = True,unique_with=['teacher'],reverse_delete_rule=CASCADE)
+    class_of_students= ListField(ReferenceField(Students),default = list)
     
 class Uploads(Document):
     """
@@ -282,8 +295,8 @@ class Uploads(Document):
     """
     file_name = StringField(required = True,unique=True)
     location = StringField(required = True)
-    uploader = ReferenceField(Faculty,required = True,reverse_delete_rule=DO_NOTHING)
-    time = DateTimeField(required = True)
+    uploader = ReferenceField(Teaches,required = True,reverse_delete_rule=CASCADE)
+    upload_time = DateTimeField(required = True)
     file = FileField(required = True)
     meta={'indexes' : ['file_name','$file_name','location','$location']}
     
@@ -292,23 +305,23 @@ class Notifications(Document):
     Notifications : Contain the notifications sent through the school channel
     Fields
     ----------
-    notifications : Character String 
+    notification : Character String 
         Contains the information about the 
     type : Character String
         Contains the type of notification by its urgency
-    time : Datetime
+    note_time : Datetime
         Specifies when the notification was made
     upload : Document
         Contains information about any uploaded file to the server tied to the notification
-    department : Document
+    registered_department : Document
         References the department that posted the notification
-    faculty : Document
+    responible_faculty : Document
         References the faculty person that uploaded the notifications
     """
-    notifications = StringField(required = True)
-    type_ = StringField(required = True)
-    time = DateTimeField(required = True)
+    notification = StringField(required = True)
+    type_ = StringField(required = True, choices = constants.type_)
+    note_time = DateTimeField(required = True)
     upload = ReferenceField(Uploads,required = False ,reverse_delete_rule=CASCADE)
-    department = ReferenceField(Departments,required = True,reverse_delete_rule=CASCADE)
-    faculty = ReferenceField(Faculty,required = True,reverse_delete_rule=CASCADE)
-    meta={'ordering' : '-time'}
+    registered_department = ReferenceField(Departments,required = True,reverse_delete_rule=CASCADE)
+    responible_faculty = ReferenceField(Faculty,required = True,reverse_delete_rule=CASCADE)
+    

@@ -65,6 +65,12 @@ class ModelConstants:
         Tuple of the grading that the scores can be identified with
     years : Tuple of Integers
         Turple of the permisable years a client can enter into the database
+    type_ : Tuple of Strings
+        Turple of the permisable emergencies
+    submission_type : Tuple of Strings
+        Turple containing all the submission types
+    max : Long
+        Maximum upload size
     """
     def __init__(self):
         self.campuses = ("Jinshagang","Heinan")
@@ -78,3 +84,6 @@ class ModelConstants:
         self.modules = (1,2,3,4)
         self.grades = ("A","B","C","D","E","F")
         self.years = tuple(sorted([j for j in range(2000,2100,1)]))
+        self.type_ = ("Emergency","Warning")
+        self.submission_type = ("Resources","Assignments","Submissions")
+        self.max = 104857600

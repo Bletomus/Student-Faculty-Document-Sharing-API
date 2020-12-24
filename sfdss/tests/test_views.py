@@ -25,12 +25,20 @@ class ViewTest(unittest.TestCase):
         disconnect()
         
     def tests_(self):
-        
+        parser = (FileUploadParser,)
         model = CreateModels()
+        
+        upload_payload = {'file':1}
+        
         model.createStudentOP()
+        
         response = client.get(reverse('get_student_details',kwargs={'person_id' : 1712510105}))
         student = Students.objects.get(person_number=1712510105)
         serializer = StudentsSerializer(student)
         str1 = "Your data is different buddy\n" + str(JSONRenderer().render(serializer.data)) + "\n vs \n" +str(JSONRenderer().render(response.data))
         
         assert response.data == serializer.data, str1
+        
+        response = client.put(reverse('get_post_puppies',kwargs={'person_id' : 972500105,'file_name':"test_file"}),data=payload,content_type='application/json')
+        
+        

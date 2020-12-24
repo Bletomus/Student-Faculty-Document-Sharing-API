@@ -1,5 +1,5 @@
 from rest_framework_mongoengine import serializers
-from sfdss.models import Campus,Semesters,Courses,Departments,Building,Majors,Faculty,Students,CoursesPerMajor,StudentTakes,SemesterSchedule,Notifications,Uploads,SemesterScores
+from sfdss.models import Campus,Semesters,Courses,Departments,Building,Majors,Faculty,Students,CoursesPerMajor,StudentTakes,SemesterSchedule,Notifications,Uploads,SemesterScores,Teaches
 
 class CampusSerializer(serializers.DocumentSerializer):
     class Meta:
@@ -71,4 +71,8 @@ class UploadsSerializer(serializers.DocumentSerializer):
     class Meta:
         model = Uploads
         fields = '__all__'
-        
+    
+class TeachesSerializer(serializers.DocumentSerializer):
+    class Meta:
+        model = Teaches
+        fields = '__all__'

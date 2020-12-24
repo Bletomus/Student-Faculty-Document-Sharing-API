@@ -4,6 +4,8 @@ from sfdss.models import *
 from datetime import datetime
 from tests.ModelCreation import CreateModels
 from resources.Constants import FakeDataBaseConstants
+from rest_framework.parsers import FileUploadParser
+
 const_Fake_db = FakeDataBaseConstants()
 
 class ModelsTest(unittest.TestCase):
@@ -84,6 +86,7 @@ class ModelsTest(unittest.TestCase):
         assert test_cpm.module == 1,"module is incorrect"
         assert test_cpm.elective == False,"elective is incorrect"
         assert test_cpm.course_cpm == test_course ,"course is incorrect"
+        
         ll=test_student
         test_st = model.createStudentTakes(ts=ll,test_course=test_course,test_semester=test_semester)
         
@@ -92,3 +95,31 @@ class ModelsTest(unittest.TestCase):
         assert test_st.course_taken == Courses.objects().first(),"course is incorrect"
         assert test_st.semester_taken == Semesters.objects().first(),"Semesters is incorrect"
         
+        test_graded = model.createGrading(test_st,test_major)
+        
+        assert test_graded.student_took == StudentTakes.objects().first() , "Student is incorrect"
+        assert test_graded.grade == "A", "Grade is incorrect"
+        assert test_graded.attempts == 1, "attempts is incorrect"
+        assert test_graded.score == 99.9, "Score is incorrect"
+        assert test_graded.credits_ == 4, "Credits is incorrect"
+        
+        test_schedule = model.creatingSchedule(test_build = test_building,test_seme=test_semester,test_maj=test_major,test_cos=test_course)
+        
+        assert test_schedule.scheduled_building == Building.objects().first(), "Building is incorrect"
+        assert test_schedule.scheduled_year == 2020, "Year is incorrect"
+        assert test_schedule.scheduled_semester == Semesters.objects().first(), "Semester is incorrect"
+        assert test_schedule.scheduled_major == Majors.objects().first(), "Major is incorrect"
+        assert test_schedule.scheduled_course == Courses.objects().first(), "Course is incorrect"
+        
+        test_note = model.createNotifications(fac = test_faculty,dept = test_dept)
+        
+        assert test_note.notification == "Hi sexy", "Year is incorrect"
+        assert test_note.type_ == "Emergency", "Rank is incorrect"
+        assert test_note.responible_faculty == Faculty.objects.first(), "Faculty is incorrect"
+        assert test_note.registered_department == Departments.objects.first(), "Department is incorrect"
+        
+        test_teach = model.createTeaches(fac = test_faculty,sch=test_schedule)
+        assert test_teach.teacher == Faculty.objects().first(), "Faculty is wrong"
+        assert test_teach.teacher_schedule == SemesterSchedule.objects().first() , "Schedule is wrong"
+        
+        assert test_teach.class_of_students == [], gg

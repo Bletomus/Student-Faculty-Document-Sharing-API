@@ -5,10 +5,12 @@ from datetime import datetime
 @author: Lee Flame
 """
 from sfdss.models import *
+from rest_framework.exceptions import ParseError
 from datetime import datetime
+time = datetime.utcnow()
 
 class CreateModels:
-    time = datetime.utcnow()
+    
     def __init__(self):
         Campus.drop_collection()
         Semesters.drop_collection()
@@ -20,6 +22,10 @@ class CreateModels:
         Students.drop_collection()
         CoursesPerMajor.drop_collection()
         StudentTakes.drop_collection()
+        SemesterScores.drop_collection()
+        SemesterSchedule.drop_collection()
+        Notifications.drop_collection()
+        Teaches.drop_collection()
         
     def createCampus(self):
         campus = Campus(campus = "Jinshagang" )
@@ -80,7 +86,34 @@ class CreateModels:
         st.save()
         test_st = StudentTakes.objects().first()
         return test_st
-        
+    
+    def createGrading(self,student_taker,possible_major):
+        grading = SemesterScores(student_took =student_taker,grade ="A",attempts = 1, score = 99.9,credits_ = 4)
+        grading.save()
+        test_grading = SemesterScores.objects().first()
+        return test_grading
+    
+    def creatingSchedule(self, test_build,test_seme,test_maj,test_cos):
+        sche = SemesterSchedule(scheduled_building = test_build,scheduled_year=2020,scheduled_semester=test_seme,scheduled_time=time,scheduled_major=test_maj,scheduled_course=test_cos)
+        sche.save()
+        test_sche = SemesterSchedule.objects().first()
+        return test_sche 
+    
+    def createNotifications(self,fac,dept):
+        note = Notifications(notification = "Hi sexy",type_ = "Emergency" ,note_time = time,registered_department = dept ,responible_faculty = fac)
+        note.save()
+        test_note = Notifications.objects().first()
+        return test_note
+    
+    def createTeaches(self,fac,sch):
+        teach = Teaches(teacher = fac,teacher_schedule=sch)
+        teach.save()
+        test_teach = Teaches.objects().first()
+        return test_teach
+    
+    def createUploader(self,parser,uploada):
+        pass
+    
     def createStudentOP(self):
         test_campus = self.createCampus() 
         
@@ -95,6 +128,5 @@ class CreateModels:
         test_major = self.createMajors(test_dept)
         
         test_student = self.createStudent(test_major)
-    
     
         #return test_student

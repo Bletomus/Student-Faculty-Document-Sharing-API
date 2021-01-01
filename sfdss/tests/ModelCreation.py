@@ -4,7 +4,7 @@ Created on Wed Dec 23 14:04:00 2020
 from datetime import datetime
 @author: Lee Flame
 """
-from sfdss.models import *
+from resources.models import *
 from rest_framework.exceptions import ParseError
 from datetime import datetime
 time = datetime.utcnow()
@@ -71,7 +71,7 @@ class CreateModels:
         return test_student
     
     def createFaculty(self,test_major):
-        faculty = Faculty(person_name = "Mr_Teacher",person_number = 972500105,phone_number = [13071838053,12334555],gender = "Male",nationality = "China",faculty_major = test_major)
+        faculty = Faculty(person_name = "Mr_Teacher",person_number = 9725001005,phone_number = [13071838053,12334555],gender = "Male",nationality = "China",faculty_major = test_major)
         faculty.save()
         test_faculty = Faculty.objects().first()
         return test_faculty
@@ -99,8 +99,8 @@ class CreateModels:
         test_sche = SemesterSchedule.objects().first()
         return test_sche 
     
-    def createNotifications(self,fac,dept):
-        note = Notifications(notification = "Hi sexy",type_ = "Emergency" ,note_time = time,registered_department = dept ,responible_faculty = fac)
+    def createNotifications(self,fac,dept,name):
+        note = Notifications(notification_name = name,  notification = "Hi sexy",type_ = "Emergency" ,note_time = time,registered_department = dept ,responible_faculty = fac)
         note.save()
         test_note = Notifications.objects().first()
         return test_note

@@ -1,11 +1,11 @@
 from rest_framework.decorators import api_view,parser_classes
 from rest_framework.response import Response
 from rest_framework import status
-from sfdss.models import Uploads,Faculty
-from sfdss.serializers import UploadsSerializer
+from resources.models import Uploads,Faculty
+from resources.serializers import UploadsSerializer
 from rest_framework.parsers import FileUploadParser
 from rest_framework.exceptions import ParseError
-from sfdss.DatabaseAdapter import DatabaseAdapter
+from resources.DatabaseAdapter import DatabaseAdapter
 from resources.Constants import DatabaseConstants
 constants = DatabaseConstants()
 
@@ -32,7 +32,7 @@ def upload_file(request,person_id,file_name):
 
     """
     try:
-        faculty_member = Faculty.objects.get(person_name = person_id)
+        faculty_member = Faculty.objects.get(person_number = person_id)
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
     
@@ -49,3 +49,28 @@ def upload_file(request,person_id,file_name):
         uploaded = adapter.writeUpload(file=f,member=faculty_member,file_name=file_name)
     
     return Response({})
+
+@api_view(['Get'])
+def validate_teacher(request,person_id):
+    """
+    validate_student(person_id : LONG) takes a member id as a key and returns status code of whether or not a teacher is present
+    
+    Parameters
+    ----------
+    request : HTTP request
+        Carries metadata on what the client wants the server to do as well as the type of method (GET,POST) the server must implement
+    person_id : Long
+        Persons number used to identify their record in the database
+
+    Returns
+    -------
+    HttpResponse : Response
+        return status code 302 if the student is present and 404 if otherwise
+
+    """
+    try:
+        faculty = Faculty.objects.get(person_number=person_id)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    return Response(status=status.HTTP_302_FOUND)

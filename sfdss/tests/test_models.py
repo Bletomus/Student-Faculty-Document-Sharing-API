@@ -1,6 +1,6 @@
 import unittest
 from mongoengine import connect, disconnect
-from sfdss.models import *
+from resources.models import *
 from datetime import datetime
 from tests.ModelCreation import CreateModels
 from resources.Constants import FakeDataBaseConstants
@@ -61,7 +61,7 @@ class ModelsTest(unittest.TestCase):
         test_faculty = model.createFaculty(test_major)
         
         assert test_faculty.person_name  == "Mr_Teacher", "Persons name is incorrect"
-        assert test_faculty.person_number  == 972500105, "Persons number is incorrect"
+        assert test_faculty.person_number  == 9725001005, "Persons number is incorrect"
         assert test_faculty.gender  == "Male", "Gender is incorrect"
         assert test_faculty.nationality  == "China", "Country is incorrect"
         assert test_faculty.phone_number  == [13071838053,12334555], "Number is incorrect"
@@ -111,12 +111,13 @@ class ModelsTest(unittest.TestCase):
         assert test_schedule.scheduled_major == Majors.objects().first(), "Major is incorrect"
         assert test_schedule.scheduled_course == Courses.objects().first(), "Course is incorrect"
         
-        test_note = model.createNotifications(fac = test_faculty,dept = test_dept)
+        test_note = model.createNotifications(name = "Hi",fac = test_faculty,dept = test_dept)
         
         assert test_note.notification == "Hi sexy", "Year is incorrect"
         assert test_note.type_ == "Emergency", "Rank is incorrect"
         assert test_note.responible_faculty == Faculty.objects.first(), "Faculty is incorrect"
         assert test_note.registered_department == Departments.objects.first(), "Department is incorrect"
+        assert test_note.notification_name == "Hi", "Name is incorrect"
         
         test_teach = model.createTeaches(fac = test_faculty,sch=test_schedule)
         assert test_teach.teacher == Faculty.objects().first(), "Faculty is wrong"

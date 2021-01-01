@@ -73,11 +73,11 @@ class ModelConstants:
         Maximum upload size
     """
     def __init__(self):
-        self.campuses = ("Jinshagang","Heinan")
+        self.campuses = ("Jinshagang","Downtown", "Heaven")
         self.buildings = ("A","B","C","MET","D","E","SCIE","CIE","Dawkins")
         self.rooms = tuple(sorted([ i + j for j in range(1,51,1) for i in range(100,600,100)]))
-        self.semesters = ("Summer", "Winter")
-        self.semester_number = (1,2)
+        self.semesters = ("Summer", "Winter","Fall")
+        self.semester_number = (1,2,3)
         self.id_type = ("Passport","ID Card")
         self.genders = ("Male","Female","Other")
         self.nationalities = ("China","Zimbabwe")

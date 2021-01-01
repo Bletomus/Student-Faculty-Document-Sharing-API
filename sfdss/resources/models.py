@@ -64,26 +64,32 @@ class Courses(Document):
 
 class Departments(Document):
     """
-    Departments : Contains information related to departments\n
+    Departments : Contains information related to departments
+    
     Fields
     ----------
     department_name : Character String
-        Name of the department\n
+        Name of the department
+        
     """
     department_name = StringField(required = True,unique=True)
     meta={'indexes' : ['department_name','$department_name']}
     
 class Building(Document):
     """
-    Building : Contains information about the building venues for courses\n
+    Building : Contains information about the building venues for courses
+    
     Fields
     ----------
     building : Character String
         Building name
+        
     building_campus : Document
-        The name of the campus the building belongs to\n
+        The name of the campus the building belongs to
+        
     room_number : Integer
-        The room number of the course\n
+        The room number of the course
+        
     """
     building_campus = ReferenceField(Campus,reverse_delete_rule=CASCADE,required = True)
     building = StringField(required = True,unique_with=['building_campus'],choices = constants.buildings)
@@ -93,34 +99,44 @@ class Building(Document):
 
 class Majors(Document):
     """
-    Majors : Contains information relevant to the majors the school offers\n
+    Majors : Contains information relevant to the majors the school offers
+    
     Fields
     ----------
     major_department : Document
-        references the departments document and thus its information\n
+        references the departments document and thus its information
+        
     major : Character String
-        name of the major\n
+        name of the major
+        
     """
     major_department = ReferenceField(Departments,required = True,reverse_delete_rule=DO_NOTHING)
     major = StringField(required = True,unique=True)
     
 class Faculty(Document):
     """
-    Faculty : Contains information about the teaching faculty at the school\n
+    Faculty : Contains information about the teaching faculty at the school
+    
     Fields
     ----------
     person_name : Character String
-        Name of the person\n
+        Name of the person
+        
     person_number : Long
-        Identifying id for the person\n
+        Identifying id for the person
+        
     gender : Character String
-        Identifying the legal gender of the person\n
+        Identifying the legal gender of the person
+        
     nationality : Character String
-        Country which issued the identification the person is using to enroll into the school\n
+        Country which issued the identification the person is using to enroll into the school
+        
     phone_number : List of Long
-        Contains a list of the phone numbers which can be used to contact the person\n
+        Contains a list of the phone numbers which can be used to contact the person
+        
     faculty_major : Character String
-        The major the person belongs to\n
+        The major the person belongs to
+        
     """
     person_name = StringField(required = True)
     person_number = LongField(required = True,unique=True)
@@ -137,25 +153,35 @@ class Students(Document):
     Fields
     ----------
     student_name : Character String
-        Name of the person\n
+        Name of the person
+        
     student_number : Long
-        Identifying id for the person\n
+        Identifying id for the person
+        
     student_gender : Character String
-        Identifying the legal gender of the person\n
+        Identifying the legal gender of the person
+        
     student_nationality : Character String
-        Country which issued the identification the person is using to enroll into the school\n
+        Country which issued the identification the person is using to enroll into the school
+        
     student_phone_number : List of Long
-        Contains a list of the phone numbers which can be used to contact the person\n
+        Contains a list of the phone numbers which can be used to contact the person
+        
     student_major : Character String
-        The major the person belongs to\n
+        The major the person belongs to
+        
     id_type : Character String
         The type of the form used to identify the student
+        
     enrollment_date : Datetime
         The date the student enrolled in the school
+        
     origin_country : Character String
         The country from which the student was born in
+        
     place_of_birth : Character String
         The city or province the student was born in
+        
     """
     student_name = StringField(required = True)
     student_number = LongField(required = True,unique=True)
@@ -318,6 +344,7 @@ class Notifications(Document):
     responible_faculty : Document
         References the faculty person that uploaded the notifications
     """
+    notification_name =  StringField(required = True)
     notification = StringField(required = True)
     type_ = StringField(required = True, choices = constants.type_)
     note_time = DateTimeField(required = True)

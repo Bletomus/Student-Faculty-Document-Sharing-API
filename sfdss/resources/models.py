@@ -351,4 +351,4 @@ class Notifications(Document):
     upload = ReferenceField(Uploads,required = False ,reverse_delete_rule=CASCADE)
     registered_department = ReferenceField(Departments,required = True,reverse_delete_rule=CASCADE)
     responible_faculty = ReferenceField(Faculty,required = True,reverse_delete_rule=CASCADE)
-    
+    targets = ListField(ReferenceField(Students,reverse_delete_rule=CASCADE),default=list)

@@ -33,8 +33,9 @@ class MajorsSerializer(serializers.DocumentSerializer):
         
 class FacultySerializer(serializers.DocumentSerializer):
     class Meta:
+        depth = 2
         model = Faculty
-        fields = '__all__'
+        fields = ['person_name','person_number','gender','nationality','phone_number','faculty_major']
         
 class StudentsSerializer(serializers.DocumentSerializer):
     class Meta:
@@ -49,11 +50,13 @@ class CoursesPerMajorSerializer(serializers.DocumentSerializer):
         
 class StudentTakesSerializer(serializers.DocumentSerializer):
     class Meta:
+        depth = 2
         model = StudentTakes
-        fields = '__all__'
+        fields = ['student_taking','year_semester','course_taken','semester_taken']
         
 class SemesterScoresSerializer(serializers.DocumentSerializer):
     class Meta:
+        depth = 2
         model = SemesterScores
         fields = '__all__'
         

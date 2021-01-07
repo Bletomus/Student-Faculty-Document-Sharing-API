@@ -26,7 +26,7 @@ class ViewTest(unittest.TestCase):
         
     def tests_(self):
         adapter = DatabaseAdapter()
-        #adapter.dropCollections()
+        # adapter.dropCollections()
         # """Campus test"""
         # response_1 = adapter.createCampus("Jinshagang")
         
@@ -112,16 +112,42 @@ class ViewTest(unittest.TestCase):
         # assert faculty_done[0] == True, "something went wrong"
         
         # """Students Test"""
-        # response_15 = adapter.createStudent(name = "Mr_Teacher", number =9725001005,major= majors_done[2])
+        # response_15 = adapter.createStudent(name = "Mr_Teacher", number =1712510101,major= majors_done[2])
         
-        # response_16 = adapter.createStudent(name = "Mr_Teacher", number =9725001005,major= majors_done[2])
+        # response_16 = adapter.createStudent(name = "Mr_Teacher", number =1712510101,major= majors_done[2])
         
         # assert response_15[0] == True, "it didnt go in all is not well"
         # assert response_16[0] == False, "okay that waas supposed to be unique"
         
-        # student_done = adapter.getStudent(9725001005)
+        # student_done = adapter.getStudent(1712510101)
         
         # assert student_done[0] == True, "something went wrong"
+        
+        # """Student Takes Test"""
+        # response_17 = adapter.createStudentTakes(year=2020,student=student_done[2],course=course_done[2],semester = semester_done[2])
+        
+        # response_18 = adapter.createStudentTakes(year=2020,student=student_done[2],course=course_done[2],semester = semester_done[2])
+        
+        # assert response_17[0] == True, "it didnt go in all is not well"
+        # assert response_18[0] == False, "okay that waas supposed to be unique"
+        
+        # student_takes_done = adapter.getStudentTakes(1712510101)
+        
+        # assert student_takes_done[0] == True, "something went wrong"
+        
+        # """Semester Scores"""
+        # testa = student_takes_done[2]
+        # first = testa[0]
+        # response_19 = adapter.createSemesterScores(first)
+        
+        # response_20 = adapter.createSemesterScores(first)
+        
+        # assert response_19[0] == True, "it didnt go in all is not well"
+        # assert response_20[0] == False, "okay that waas supposed to be unique"
+        
+        # student_fails = adapter.getSemesterScores(1712510101)
+        
+        # assert student_fails[0] == True, "something went wrong"
         
         """Bulk Test"""
         adapter.dropCollections()
@@ -129,4 +155,6 @@ class ViewTest(unittest.TestCase):
         
         
         assert response_15[0] == True, response_15[1]
+        faculty_done = adapter.getFaculty(9725001001)
         
+        assert faculty_done[0] == True, "something went wrong"

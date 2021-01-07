@@ -419,11 +419,11 @@ class DatabaseAdapter:
             If the record is found then it will return true along with the record but if it is not found the system will return false.
 
         """
-        #try:
-        student = Students(student_name = name,student_number=number,student_gender =gender,student_nationality=nationality,student_phone_number=phone,student_major=major,id_type=_id,enrollment_date=time,origin_country=origin,place_of_birth=place_of_birth)
-        student.save()
-        #except:
-        return (False,"Input was unsuccesful")
+        try:
+            student = Students(student_name = name,student_number=number,student_gender =gender,student_nationality=nationality,student_phone_number=phone,student_major=major,id_type=_id,enrollment_date=time,origin_country=origin,place_of_birth=place_of_birth)
+            student.save()
+        except:
+            return (False,"Input was unsuccesful")
         
         return (True,"Input was Successful")
     
@@ -450,6 +450,120 @@ class DatabaseAdapter:
         
         return (True, "Record was found" , stu)
     
+    def createStudentTakes(self,student,year,course,semester):
+        """
+        
+
+        Parameters
+        ----------
+        student : Students
+            DESCRIPTION.
+        year : DateTime
+            DESCRIPTION.
+        course : Courses
+            DESCRIPTION.
+        semester : Semesters
+            DESCRIPTION.
+
+        Returns
+        -------
+        bool
+            DESCRIPTION.
+        str
+            DESCRIPTION.
+
+        """
+        try:
+            student_takes = StudentTakes(student_taking=student,year_semester=year,course_taken=course,semester_taken=semester)
+            student_takes.save()
+        except:
+            return (False,"Input was unsuccesful")
+        return (True,"Input was Successful")
+    
+    
+    def getStudentTakes(self,student_id):
+        """
+        
+
+        Parameters
+        ----------
+        student_id : Long
+            DESCRIPTION.
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        """
+        try:
+            student=self.getStudent(student_id)
+            stu = StudentTakes.objects(student_taking=student[2]).all()
+        except DoesNotExist:
+            return (False,"Record doesn't exist")
+        
+        return (True, "Record was found" , stu)
+    
+    def createSemesterScores(self,studentTaking,grade='A',attemps = 1,score = 99,credit = 4):
+        '''
+        
+
+        Parameters
+        ----------
+        studentTaking : StudentTakes
+            DESCRIPTION.
+        grade : String, optional
+            DESCRIPTION. The default is 'A'.
+        attemps : Integer, optional
+            DESCRIPTION. The default is 1.
+        score : Float, optional
+            DESCRIPTION. The default is 99.
+        credit : Integer, optional
+            DESCRIPTION. The default is 4.
+
+        Returns
+        -------
+        bool
+            DESCRIPTION.
+        str
+            DESCRIPTION.
+
+        '''
+        try:
+            student_got = SemesterScores(student_took =studentTaking ,grade =grade,attempts =attemps,score =score,credits_ =credit)
+            student_got.save()
+        except:
+            return (False,"Input was unsuccesful")
+        return (True,"Input was Successful")
+        
+            
+        return (True,"Input was Successful")
+    
+    def getSemesterScores(self,student_number):
+        """
+        
+
+        Parameters
+        ----------
+        student_number : Long
+            DESCRIPTION.
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        """
+        try:
+            
+            student_tooketh = self.getStudentTakes(student_number)
+            queryset = student_tooketh[2]
+            
+            stu = [SemesterScores.objects.get(student_took=item) for item in queryset]
+        except DoesNotExist:
+            return (False,"Record doesn't exist",{})
+        
+        return (True, "Record was found" , stu)
     def dropCollections(self):
         """
         dropCollections() deletes all the collections stored in the database
@@ -473,7 +587,9 @@ class DatabaseAdapter:
         SemesterSchedule.drop_collection()
         Notifications.drop_collection()
         Teaches.drop_collection()
-    
+        StudentTakes.drop_collection()
+        SemesterScores.drop_collection()
+   
     def dummyInnitialize(self):
         """
         dummyInnitialize() generates fake database records for prototype testing 
@@ -488,10 +604,10 @@ class DatabaseAdapter:
         Semasters = {"Winter" : 1,"Fall" : 3,"Summer" : 2}
         Coursas = {"Intro To Comp Sci" : 2323,"Intro to Economics" : 2424,"Computer Architecture and design" : 2525}
         Dapartment = ["SCIE", "SAH", "SE"]
-        Buildang = {"A" : self.getCampus("Jinshagang"),"B" : self.getCampus("Downtown"),"C" : self.getCampus("Heaven")}
-        MajeEr = {"Computer Science" :self.getDepartment("SCIE") , "Philosophy" : self.getDepartment("SAH"), "Accounting" : self.getDepartment("SE")}
-        Facaty = [["Mr Wang", 9725001001, self.getMajors("Computer Science") ],["Mr Edwards", 9725001002, self.getMajors("Philosophy")],["Mr Henry", 9725001003, self.getMajors("Accounting")]]
-        Studs = [["Bob", 1712510101, self.getMajors("Computer Science") ],["Doe", 1712510103, self.getMajors("Computer Science")],["Albert", 1712510102, self.getMajors("Accounting")]]
+        Buildang = ["A" ,"B" ,"C" ]
+        MajeEr = ["Computer Science" , "Philosophy", "Accounting"]
+        Facaty = [["Mr Wang", 9725001001 ],["Mr Edwards", 9725001002],["Mr Henry", 9725001003]]
+        Studs = [["Bob", 1712510101],["Doe", 1712510103],["Albert", 1712510102]]
         
         
         for campus in Campases:
@@ -506,17 +622,55 @@ class DatabaseAdapter:
         for dept in Dapartment:
             self.createDepartment(dept)
         
-        for key in Buildang:
-            self.createBuilding(campus = Buildang[key], building_name=str(key))
-                  
-        for key in MajeEr:
-            self.createMajors(dept=MajeEr[key], major_name=str(key))
+        for number in range(3):
+            camp = self.getCampus(Campases[number])
+            self.createBuilding(campus=camp[2],building_name=Buildang[number])
+            
+        for number in range(3):
+            dept = self.getDepartment(Dapartment[number])
+            self.createMajors(dept=dept[2],major_name=MajeEr[number])
+            
+        
+        counter = 0
+        check = False
         
         for item in Facaty:
-            self.createFaculty(name= item[0],number=item[1],major=item[2])
-          
+            maj = self.getMajors(MajeEr[counter])
+            self.createFaculty(name= item[0],number=item[1],major=maj[2])
+            
+            counter = counter + 1
+            
+        counter = 0
         for item in Studs:
-            self.createStudent(name= item[0],number=item[1],major=item[2])
+            maja = self.getMajors(MajeEr[counter])
+            self.createStudent(name= item[0],number=item[1],major=maja[2])
+            if check == False:
+                check = True
+                continue
+            counter = counter + 1
+        
+        counter = 0
+
+        
+        for item in range(3):
+            ss = self.getStudent(Studs[counter][1])
+            student = ss[2]
+            cc =list(Coursas.values())
+            ccc = cc[counter]
+            cccc = self.getCourse(ccc)
+            cos = cccc[2]
+            ss =list(Semasters.keys())
+            sss = ss[counter]
+            ssss = self.getSemester(sss)
+            seme = ssss[2]
+          
+            self.createStudentTakes(student=student,year=2020,course=cos,semester=seme)
+            
+            counter = counter + 1
+            
+        takes = StudentTakes.objects.all()
+        for items in takes:
+            self.createSemesterScores(studentTaking=items)
             
         if Campus.objects.count() != 3:
             return (False, "Campus count is wrong!" + str(Campus.objects.count()))
@@ -541,7 +695,11 @@ class DatabaseAdapter:
         
         if Students.objects.count() != 3:
             return (False, "Students count is wrong!" + str(Students.objects.count()))
+        if StudentTakes.objects.count() != 3:
+            return (False, "Students taking count is wrong!" + str(Students.objects.count()))
         
+        if SemesterScores.objects.count() != 3:
+            return (False, "Semester Scores taking count is wrong!" + str(Students.objects.count()))
         return (True, "Done!")
         
     def writeUpload(self,file,member,file_name,sub_type = 1):

@@ -1,11 +1,11 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from resources.models import Students
-from resources.serializers import StudentsSerializer
-from mongoengine.errors import DoesNotExist
+from resources.serializers import StudentsSerializer,StudentTakesSerializer,SemesterScoresSerializer
 from resources.DatabaseAdapter import DatabaseAdapter
-from django.http import HttpResponse
+
+adapter = DatabaseAdapter()
+
 @api_view(['Get'])
 def get_student_details(request,person_id):
     """
@@ -25,19 +25,20 @@ def get_student_details(request,person_id):
 
     """
     try:
-        students = Students.objects.get(student_number=person_id)
+        students = adapter.getStudent(person_id)
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
-    
-    if request.method == 'GET':
-        serializer = StudentsSerializer(students,)
-        return Response(serializer.data)
-    
-    return Response({})
+    if students[0] == True:
+        if request.method == 'GET':
+            serializer = StudentsSerializer(students[2],)
+            return Response(serializer.data)
+    else:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+
 
 @api_view(['Get'])
 def set_up_database(request):
-    adapter = DatabaseAdapter()
     adapter.dropCollections()
     result = adapter.dummyInnitialize()
     
@@ -65,8 +66,46 @@ def validate_student(request,person_id):
 
     """
     try:
-        Students.objects.get(student_number=person_id)
-    except DoesNotExist:
+        student = adapter.getStudent(person_id)
+    except:
         return Response(data={},status=status.HTTP_404_NOT_FOUND)
     
-    return Response(data={},status=status.HTTP_200_OK)
+    if student[0] == True: 
+        return Response(data={},status=status.HTTP_200_OK)
+    else:
+        return Response(data={},status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['Get'])
+def get_Student_Takes(request,person_id):
+    try:
+        student = adapter.getStudentTakes(person_id)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if student[0] == True:
+        queryset = student[2]
+        if len(queryset) > 0:
+            if request.method == 'GET':
+                serializer = StudentTakesSerializer(queryset,many=True)
+                return Response(serializer.data)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+    else:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    
+@api_view(['Get'])
+def get_Student_Scores(request,person_id):
+    try:
+        student = adapter.getSemesterScores(person_id)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if student[0] == True:
+        queryset = student[2]
+        if len(queryset) > 0:
+            if request.method == 'GET':
+                serializer = SemesterScoresSerializer(queryset,many=True)
+                return Response(serializer.data)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+    else:
+        return Response(status=status.HTTP_404_NOT_FOUND)    

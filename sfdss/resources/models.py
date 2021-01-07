@@ -143,7 +143,7 @@ class Faculty(Document):
     gender = StringField(required = True, choices = constants.genders )
     nationality = StringField(required = True, choices = constants.nationalities )
     phone_number = ListField(LongField(),default=list)
-    faculty_major = ReferenceField(Majors,required = True,reverse_delete_rule=DO_NOTHING)
+    faculty_major =ReferenceField(Majors,required = True,reverse_delete_rule=DO_NOTHING)
     
     meta = {'indexes' : ['person_number']}
     
@@ -188,7 +188,7 @@ class Students(Document):
     student_gender = StringField(required = True, choices = constants.genders )
     student_nationality = StringField(required = True, choices = constants.nationalities )
     student_phone_number = ListField(LongField(),default=list)
-    student_major = ReferenceField(Majors,required = True,reverse_delete_rule=DO_NOTHING)
+    student_major =ReferenceField(Majors,required = True,reverse_delete_rule=DO_NOTHING)
     id_type = StringField(required = True,choices=constants.id_type)
     enrollment_date = DateTimeField(required = True)
     origin_country = StringField(required = True,choices=constants.nationalities)
@@ -231,9 +231,9 @@ class StudentTakes(Document):
         References the semester in which the student took the course 
     """
     student_taking = ReferenceField('Students',required = True,reverse_delete_rule=DO_NOTHING)
-    year = IntField(required = True,choices=constants.years)
+    year_semester = IntField(required = True,choices=constants.years)
     course_taken = ReferenceField(Courses,required = True)
-    semester_taken = ReferenceField(Semesters,required = True)
+    semester_taken = ReferenceField(Semesters,required = True,unique_with=['year_semester','course_taken','student_taking'])
     
     
 class SemesterScores(Document):
@@ -260,7 +260,7 @@ class SemesterScores(Document):
     major_exam : Document
         Major the course belongs to
     """
-    student_took = ReferenceField(StudentTakes,required = True,reverse_delete_rule=DO_NOTHING)
+    student_took = ReferenceField(StudentTakes,required = True,reverse_delete_rule=DO_NOTHING,unique=True)
     grade = StringField(required = True, choices = constants.grades)
     attempts = IntField(required = True)
     score = FloatField(required = True)

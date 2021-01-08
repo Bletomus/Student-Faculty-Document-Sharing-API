@@ -7,4 +7,5 @@ urlpatterns = [
     path('set_up_database/',views.set_up_database,name = 'set_up_database'),
     path('get_Student_Takes/<int:person_id>',views.get_Student_Takes,name='get_Student_Takes'),
     path('get_Student_Scores/<int:person_id>',views.get_Student_Scores,name='get_Student_Scores'),
+    path('get_Courses/<int:person_id>',views.get_Courses,name='get_Courses'),
     ]

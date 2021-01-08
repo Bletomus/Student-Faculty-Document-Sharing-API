@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from resources.serializers import StudentsSerializer,StudentTakesSerializer,SemesterScoresSerializer
+from resources.serializers import StudentsSerializer,StudentTakesSerializer,SemesterScoresSerializer,CoursesPerMajorSerializer
 from resources.DatabaseAdapter import DatabaseAdapter
 
 adapter = DatabaseAdapter()
@@ -109,3 +109,22 @@ def get_Student_Scores(request,person_id):
             return Response(status=status.HTTP_404_NOT_FOUND)
     else:
         return Response(status=status.HTTP_404_NOT_FOUND)    
+    
+    
+
+@api_view(['Get'])
+def get_Courses(request,person_id):
+    try:
+        student = adapter.getCPMByID(person_id)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if student[0] == True:
+        queryset = student[2]
+        if len(queryset) > 0:
+            if request.method == 'GET':
+                serializer = CoursesPerMajorSerializer(queryset,many=True)
+                return Response(serializer.data)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+    else:
+        return Response(status=status.HTTP_404_NOT_FOUND) 

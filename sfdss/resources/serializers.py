@@ -45,6 +45,7 @@ class StudentsSerializer(serializers.DocumentSerializer):
     
 class CoursesPerMajorSerializer(serializers.DocumentSerializer):
     class Meta:
+        depth = 2
         model = CoursesPerMajor
         fields = '__all__'
         

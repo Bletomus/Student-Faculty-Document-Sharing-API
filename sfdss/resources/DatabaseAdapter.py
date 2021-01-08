@@ -564,6 +564,69 @@ class DatabaseAdapter:
             return (False,"Record doesn't exist",{})
         
         return (True, "Record was found" , stu)
+    
+    def createCPM(self,semester,major,course,year=2020,mod=1,elective=False):
+        """
+        
+
+        Parameters
+        ----------
+        major : Majors
+            DESCRIPTION.
+        course : Courses
+            DESCRIPTION.
+        mod : Integer, optional
+            DESCRIPTION. The default is 1.
+        elective : Boolean, optional
+            DESCRIPTION. The default is False.
+
+        Returns
+        -------
+        bool
+            DESCRIPTION.
+        str
+            DESCRIPTION.
+
+        """
+        
+
+        
+        try:
+            cpm = CoursesPerMajor(major_cpm=major,module=mod,elective=elective,course_cpm=course,year_course=year,semester_course=semester)
+            cpm.save()
+        except:
+            return (False,"Input was unsuccesful")
+        return (True,"Input was Successful")
+
+    def getCPM(self,major):
+        """
+        
+
+        Parameters
+        ----------
+        major : Majors
+            DESCRIPTION.
+
+        Returns
+        -------
+        bool
+            DESCRIPTION.
+        str
+            DESCRIPTION.
+        TYPE
+            DESCRIPTION.
+
+        """
+        try:
+            
+            major_set = self.getMajors(major.major)
+            query = major_set[2]
+            stu = CoursesPerMajor.objects(major_cpm=query)
+        except DoesNotExist:
+            return (False,"Record doesn't exist",{})
+        
+        return (True, "Record was found" , stu)
+        
     def dropCollections(self):
         """
         dropCollections() deletes all the collections stored in the database
@@ -589,7 +652,37 @@ class DatabaseAdapter:
         Teaches.drop_collection()
         StudentTakes.drop_collection()
         SemesterScores.drop_collection()
-   
+        CoursesPerMajor.drop_collection()
+    
+    def getCPMByID(self,student_id):
+        '''
+        
+
+        Parameters
+        ----------
+        student_id : Integer
+            DESCRIPTION.
+
+        Returns
+        -------
+        bool
+            DESCRIPTION.
+        str
+            DESCRIPTION.
+        TYPE
+            DESCRIPTION.
+
+        '''
+        try:
+            
+            sTuple = self.getStudent(student_id)
+            student = sTuple[2]
+            maj = Majors.objects.get(major=student.student_major.major)
+            stu = self.getCPM(maj)
+        except DoesNotExist:
+            return (False,"Record doesn't exist",{})
+        
+        return stu
     def dummyInnitialize(self):
         """
         dummyInnitialize() generates fake database records for prototype testing 
@@ -602,7 +695,7 @@ class DatabaseAdapter:
         """
         Campases = ["Jinshagang", "Downtown", "Heaven"]
         Semasters = {"Winter" : 1,"Fall" : 3,"Summer" : 2}
-        Coursas = {"Intro To Comp Sci" : 2323,"Intro to Economics" : 2424,"Computer Architecture and design" : 2525}
+        Coursas = {"Intro To Comp Sci" : 2323,"Intro to Economics" : 2424,"CAD" : 2525}
         Dapartment = ["SCIE", "SAH", "SE"]
         Buildang = ["A" ,"B" ,"C" ]
         MajeEr = ["Computer Science" , "Philosophy", "Accounting"]
@@ -650,8 +743,15 @@ class DatabaseAdapter:
             counter = counter + 1
         
         counter = 0
-
-        
+        seme = Semesters.objects.first()
+        maj = Majors.objects.first()
+        for item in range(3):
+            ckeys = list(Coursas.values())
+            cos_id = ckeys[item]
+            cTuple= self.getCourse(cos_id)
+            cos = cTuple[2]
+            self.createCPM(major=maj,course=cos,mod=item+1,semester=seme)
+            
         for item in range(3):
             ss = self.getStudent(Studs[counter][1])
             student = ss[2]
@@ -671,7 +771,8 @@ class DatabaseAdapter:
         takes = StudentTakes.objects.all()
         for items in takes:
             self.createSemesterScores(studentTaking=items)
-            
+        
+        
         if Campus.objects.count() != 3:
             return (False, "Campus count is wrong!" + str(Campus.objects.count()))
         
@@ -700,6 +801,9 @@ class DatabaseAdapter:
         
         if SemesterScores.objects.count() != 3:
             return (False, "Semester Scores taking count is wrong!" + str(Students.objects.count()))
+        
+        if CoursesPerMajor.objects.count() != 3:
+            return (False, "Course per major taking count is wrong!" + str(Students.objects.count()))
         return (True, "Done!")
         
     def writeUpload(self,file,member,file_name,sub_type = 1):

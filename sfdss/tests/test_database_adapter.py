@@ -149,12 +149,26 @@ class ViewTest(unittest.TestCase):
         
         # assert student_fails[0] == True, "something went wrong"
         
+        # """Courses Per Major Text"""
+        # response_21 = adapter.createCPM(major=majors_done[2],course =course_done[2],semester=semester_done[2])
+        
+        # response_22 = adapter.createCPM(major=majors_done[2],course =course_done[2],semester=semester_done[2])
+        
+        # assert response_21[0] == True, "it didnt go in all is not well"
+        # assert response_22[0] == False, "okay that waas supposed to be unique"
+        # maj = majors_done[2]
+        # cpm_done = adapter.getCPM(maj)
+        
+        # assert cpm_done[0] == True, "something went wrong"
+        
         """Bulk Test"""
         adapter.dropCollections()
         response_15 = adapter.dummyInnitialize()
         
         
         assert response_15[0] == True, response_15[1]
-        faculty_done = adapter.getFaculty(9725001001)
         
-        assert faculty_done[0] == True, "something went wrong"
+        response = adapter.getCPMByID(1712510101)
+        
+        assert response[0] == True, response_15[1]
+        

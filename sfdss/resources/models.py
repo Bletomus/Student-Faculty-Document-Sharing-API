@@ -209,7 +209,8 @@ class CoursesPerMajor(Document):
     course_cpm : Document
         The course name and details
     """
-    
+    semester_course = ReferenceField(Semesters,required = True,reverse_delete_rule=CASCADE)
+    year_course = IntField(required = True,choices=constants.years)
     major_cpm = ReferenceField(Majors,required = True,reverse_delete_rule=CASCADE)
     module = IntField(required = True,unique_with=['major_cpm'], choices = constants.modules)
     elective = BooleanField(default=False)

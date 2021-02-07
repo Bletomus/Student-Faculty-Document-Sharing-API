@@ -85,5 +85,5 @@ class ModelConstants:
         self.grades = ("A","B","C","D","E","F")
         self.years = tuple(sorted([j for j in range(2000,2100,1)]))
         self.type_ = ("Emergency","Warning")
-        self.submission_type = ("Resources","Assignments","Submissions")
+        self.submission_type = ("Assignments","Resources","Submissions","Notification")
         self.max = 104857600

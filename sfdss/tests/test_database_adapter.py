@@ -26,7 +26,7 @@ class ViewTest(unittest.TestCase):
         
     def tests_(self):
         adapter = DatabaseAdapter()
-        # adapter.dropCollections()
+        adapter.dropCollections()
         # """Campus test"""
         # response_1 = adapter.createCampus("Jinshagang")
         
@@ -161,14 +161,74 @@ class ViewTest(unittest.TestCase):
         
         # assert cpm_done[0] == True, "something went wrong"
         
-        """Bulk Test"""
-        adapter.dropCollections()
-        response_15 = adapter.dummyInnitialize()
+        # """Semester Schedule"""
+        # response_23 = adapter.createSchedule(building=building_done[2],semester=semester_done[2],major=majors_done[2],course=course_done[2])
+        
+        # response_24 = adapter.createSchedule(building=building_done[2],semester=semester_done[2],major=majors_done[2],course=course_done[2])
+        
+        # assert response_23[0] == True, "it didnt go in all is not well"
+        # assert response_24[0] == False, "okay that waas supposed to be unique"
+        # maj = majors_done[2]
+        # ss_done = adapter.getSchedule(maj)
+        
+        # assert ss_done[0] == True, "something went wrong"
+        
+        # """Teaches"""
+        # st = Students.objects.all()
+        # stlist = [item for item in st]
+        # sch = SemesterSchedule.objects[0]
+        
+        # response_25 = adapter.createTeaches(teacher=faculty_done[2],schedule=sch,students=stlist)
+        
+        # response_26 = adapter.createTeaches(teacher=faculty_done[2],schedule=sch,students=stlist)
+        
+        # assert response_25[0] == True, "it didnt go in all is not well"
+        # assert response_26[0] == False, "okay that waas supposed to be unique"
+        
+        # teaches_done = adapter.getTeaches(9725001005)
+        
+        # assert teaches_done[0] == True, "something went wrong"
+        
+        # """Notifications"""
+        # response_27 = adapter.createFacultyNotifications(upload="",fac=faculty_done[2],dept=dept_done[2],name="Tupac",notification="I love you doc")
+        
+        # response_28 = adapter.createFacultyNotifications(upload="",fac=faculty_done[2],dept=dept_done[2],name="Tupac",notification="I love you doc")
+        
+        # assert response_27[0] == True, "it didnt go in all is not well"
+        # assert response_28[0] == False, "okay that waas supposed to be unique"
+        
+        # fn_done = adapter.getFacultyNotifications(9725001005)
+        
+        # assert fn_done[0] == True, "something went wrong"
+        
+        # """Student Notifications"""
+        
+        # response_29 = adapter.createStudentNotifications(upload="",fac=faculty_done[2],dept=dept_done[2],name="upac",notification="I love you doc")
+        # targets = []
+        # adapter.createStudent(name = "Mr_Teacher", number =1712510102,major= majors_done[2])
+        
+        # targets.append(student_done[2])
+        # #targets.append(Students.objects[1])
+        # response_30 = adapter.createStudentNotifications(upload="",fac=faculty_done[2],dept=dept_done[2],name="Drake",notification="I love you doc",targets=targets)
+        
+        # assert response_29[0] == True, "it didnt go in all is not well"
+        # assert response_30[0] == True, "okay that waas supposed to be unique"
+        
+        # sn_done = adapter.getStudentNotifications(1712510101)
+        
+        # assert sn_done[0] == True, "something went wrong"
+        up_done = adapter.getUpload(1223456)
+        assert up_done[0] ==True,"something wrong somewhere"
+        # adapter.dropCollections()
+        # response_15 = adapter.dummyInnitialize()
         
         
-        assert response_15[0] == True, response_15[1]
+        # assert response_15[0] == True, response_15[1]
         
-        response = adapter.getCPMByID(1712510101)
+        # response = adapter.getCPMByID(1712510101)
         
-        assert response[0] == True, response_15[1]
+        # assert response[0] == True, response[1]
         
+        # response_1 = adapter.getScheduleByID(1712510101)
+        
+        # assert response_1[0] == True, response_1[1]

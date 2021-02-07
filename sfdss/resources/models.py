@@ -288,7 +288,7 @@ class SemesterSchedule(Document):
     scheduled_building = ReferenceField(Building,required = True,reverse_delete_rule=CASCADE)
     scheduled_year = IntField(required = True,choices = constants.years)
     scheduled_semester = ReferenceField(Semesters,required = True,reverse_delete_rule=CASCADE)
-    scheduled_time = DateTimeField(required = True,unique_with=['scheduled_semester','scheduled_year','scheduled_building'])
+    scheduled_time = StringField(required = True,unique_with=['scheduled_semester','scheduled_year','scheduled_building'])
     scheduled_major = ReferenceField(Majors,required = True,reverse_delete_rule=CASCADE)
     scheduled_course = ReferenceField(Courses,required = True,unique_with=['scheduled_building','scheduled_time','scheduled_year','scheduled_semester'],reverse_delete_rule=CASCADE)
     
@@ -322,12 +322,12 @@ class Uploads(Document):
     """
     file_name = StringField(required = True,unique=True)
     location = StringField(required = True)
-    uploader = ReferenceField(Teaches,required = True,reverse_delete_rule=CASCADE)
+    uploader = StringField(required = True)
     upload_time = DateTimeField(required = True)
     file = FileField(required = True)
-    meta={'indexes' : ['file_name','$file_name','location','$location']}
-    
-class Notifications(Document):
+    meta={'indexes' : ['file_name','$file_name','location',]}
+
+class BaseNotifications(Document):
     """
     Notifications : Contain the notifications sent through the school channel
     Fields
@@ -345,11 +345,53 @@ class Notifications(Document):
     responible_faculty : Document
         References the faculty person that uploaded the notifications
     """
-    notification_name =  StringField(required = True)
+    notification_name =  StringField(required = True,unique=True)
     notification = StringField(required = True)
     type_ = StringField(required = True, choices = constants.type_)
     note_time = DateTimeField(required = True)
+    has_upload = BooleanField(default=False)
     upload = ReferenceField(Uploads,required = False ,reverse_delete_rule=CASCADE)
     registered_department = ReferenceField(Departments,required = True,reverse_delete_rule=CASCADE)
     responible_faculty = ReferenceField(Faculty,required = True,reverse_delete_rule=CASCADE)
+    meta={'allow_inheritance': True}
+    
+class StudentNotifications(BaseNotifications):
+    """
+    Notifications : Contain the notifications sent through the school channel
+    Fields
+    ----------
+    notification : Character String 
+        Contains the information about the 
+    type : Character String
+        Contains the type of notification by its urgency
+    note_time : Datetime
+        Specifies when the notification was made
+    upload : Document
+        Contains information about any uploaded file to the server tied to the notification
+    registered_department : Document
+        References the department that posted the notification
+    responible_faculty : Document
+        References the faculty person that uploaded the notifications
+    """
+    
     targets = ListField(ReferenceField(Students,reverse_delete_rule=CASCADE),default=list)
+    
+class FacultyNotifications(BaseNotifications):
+    """
+    Notifications : Contain the notifications sent through the school channel
+    Fields
+    ----------
+    notification : Character String 
+        Contains the information about the 
+    type : Character String
+        Contains the type of notification by its urgency
+    note_time : Datetime
+        Specifies when the notification was made
+    upload : Document
+        Contains information about any uploaded file to the server tied to the notification
+    registered_department : Document
+        References the department that posted the notification
+    responible_faculty : Document
+        References the faculty person that uploaded the notifications
+    """
+    

@@ -13,11 +13,9 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 from pathlib import Path
 from resources.Constants import DatabaseConstants,FakeDataBaseConstants
 const = DatabaseConstants()
-const_Fake_db = FakeDataBaseConstants()
 import mongoengine
+import os
 mongoengine.connect(db=const.db_Name)
-#mongoengine.connect(const_Fake_db.db_Name, host=const_Fake_db.host, alias=const_Fake_db.alias)
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -30,7 +28,7 @@ SECRET_KEY = 'yzs0u#jcg*wa2khwsfg!1sg@qm5a*st@-bcvp)eav32#m@j6y1'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','localhost','cd65cfce911c.ngrok.io']
+ALLOWED_HOSTS = ['127.0.0.1','localhost','6b6b9b1b8960.ngrok.io']
 
 
 # Application definition
@@ -107,7 +105,28 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'filters': ['require_debug_true'],
+        },
+    },
+    'loggers': {
+        'mylogger': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': True,
+        },
+    },
+}
 REST_FRAMEWORK = {
  'DEFAULT_PERMISSION_CLASSES': [],
  'TEST_REQUEST_DEFAULT_FORMAT': 'json'

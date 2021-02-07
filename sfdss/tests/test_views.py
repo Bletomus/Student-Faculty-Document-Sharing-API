@@ -50,6 +50,7 @@ class ViewTest(unittest.TestCase):
         # assert response_5.status_code == 201,"Error somewhere"
         
         
+        
         response4 = client.get(reverse('get_faculty_details',kwargs={'person_id' : 9725001001}))
         faculty = Faculty.objects.get(person_number=9725001001)
         serializers = FacultySerializer(faculty)

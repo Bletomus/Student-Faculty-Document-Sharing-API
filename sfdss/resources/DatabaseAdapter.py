@@ -1,10 +1,12 @@
-from resources.models import Uploads, Campus,Semesters,Courses,Departments,Building,Majors,Faculty,Students,CoursesPerMajor,StudentTakes,SemesterScores,SemesterSchedule,Notifications,Teaches
+from resources.models import Uploads, Campus,Semesters,Courses,Departments,Building,Majors,Faculty,Students,CoursesPerMajor,StudentTakes,SemesterScores,SemesterSchedule,FacultyNotifications,Teaches,StudentNotifications,BaseNotifications
 from resources.Constants import ModelConstants
 from mongoengine.errors import DoesNotExist
-from datetime import datetime
+from datetime import datetime,time
 import mimetypes
-
-time = datetime.utcnow()
+import logging
+import hashlib
+logger = logging.getLogger("mylogger")
+timed = datetime.utcnow()
 
 """
 Module containing the classes necessary to input and retrieve data from the database for the api to work
@@ -420,7 +422,7 @@ class DatabaseAdapter:
 
         """
         try:
-            student = Students(student_name = name,student_number=number,student_gender =gender,student_nationality=nationality,student_phone_number=phone,student_major=major,id_type=_id,enrollment_date=time,origin_country=origin,place_of_birth=place_of_birth)
+            student = Students(student_name = name,student_number=number,student_gender =gender,student_nationality=nationality,student_phone_number=phone,student_major=major,id_type=_id,enrollment_date=timed,origin_country=origin,place_of_birth=place_of_birth)
             student.save()
         except:
             return (False,"Input was unsuccesful")
@@ -626,7 +628,485 @@ class DatabaseAdapter:
             return (False,"Record doesn't exist",{})
         
         return (True, "Record was found" , stu)
+    
+    def getMajorByID(self,student_id):
+            sTuple = self.getStudent(student_id)
+            student = sTuple[2]
+            maj = Majors.objects.get(major=student.student_major.major)
+            return maj
+    def getCPMByID(self,student_id):
+        '''
         
+
+        Parameters
+        ----------
+        student_id : Integer
+            DESCRIPTION.
+
+        Returns
+        -------
+        bool
+            DESCRIPTION.
+        str
+            DESCRIPTION.
+        TYPE
+            DESCRIPTION.
+
+        '''
+        try:
+            maj = self.getMajorByID(student_id)
+            stu = self.getCPM(maj)
+        except DoesNotExist:
+            return (False,"Record doesn't exist",{})
+        
+        return stu
+    
+    def createSchedule(self, building,semester,major,course,timer,year=2020):
+        '''
+        
+
+        Parameters
+        ----------
+        building : Building
+            DESCRIPTION.
+        year : Integer, optional
+            DESCRIPTION. The default is 2020.
+        semester : Semesters
+            DESCRIPTION.
+        major : Majors
+            DESCRIPTION.
+        course : Courses
+            DESCRIPTION.
+
+        Returns
+        -------
+        bool
+            DESCRIPTION.
+        str
+            DESCRIPTION.
+
+        '''
+        try:
+            ss = SemesterSchedule(scheduled_building =building,scheduled_year =year,scheduled_semester =semester,scheduled_time =timer,scheduled_major =major,scheduled_course =course)
+            
+            ss.save()
+        except:
+            return (False,"Input was unsuccesful")
+        return (True,"Input was Successful")
+    
+    def getSchedule(self, major):
+        """
+        
+
+        Parameters
+        ----------
+        major : Majors
+            DESCRIPTION.
+
+        Returns
+        -------
+        bool
+            DESCRIPTION.
+        str
+            DESCRIPTION.
+        TYPE
+            DESCRIPTION.
+
+        """
+        try:
+            
+            major_set = self.getMajors(major.major)
+            query = major_set[2]
+            stu = SemesterSchedule.objects(scheduled_major=query)
+        except DoesNotExist:
+            return (False,"Record doesn't exist",{})
+        
+        return (True, "Record was found" , stu)
+    
+    
+        
+    def getScheduleByID(self,student_id):
+        """
+        
+
+        Parameters
+        ----------
+        student_id : Integer
+            DESCRIPTION.
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        """
+        try:
+            
+            maj = self.getMajorByID(student_id)
+            stu = self.getSchedule(maj)
+        except DoesNotExist:
+            return (False,"Record doesn't exist",{})
+        
+        return stu
+    
+    def createTeaches(self,teacher,schedule,students):
+        """
+        
+
+        Parameters
+        ----------
+        teacher : Faculty
+            DESCRIPTION.
+        schedule : SemesterSchedule
+            DESCRIPTION.
+        students : List of Students
+            DESCRIPTION.
+
+        Returns
+        -------
+        bool
+            DESCRIPTION.
+        str
+            DESCRIPTION.
+
+        """
+        try:
+            faculty = Teaches(teacher=teacher,teacher_schedule=schedule,class_of_students=students)
+            
+            faculty.save()
+        except:
+            return (False,"Input was unsuccesful")
+        return (True,"Input was Successful")
+    
+    def getTeaches(self,faculty_id):
+        '''
+        
+
+        Parameters
+        ----------
+        faculty_id : Integer
+            DESCRIPTION.
+
+        Returns
+        -------
+        bool
+            DESCRIPTION.
+        str
+            DESCRIPTION.
+        TYPE
+            DESCRIPTION.
+
+        '''
+        try:
+            
+            teacher = self.getFaculty(faculty_id)
+            query = teacher[2]
+            tea = Teaches.objects(teacher=query)
+        except DoesNotExist:
+            return (False,"Record doesn't exist",{})
+        
+        return (True, "Record was found" , tea)
+    def getTeachesByObject(self,faculty_id):
+        '''
+        
+
+        Parameters
+        ----------
+        faculty_id : Integer
+            DESCRIPTION.
+
+        Returns
+        -------
+        bool
+            DESCRIPTION.
+        str
+            DESCRIPTION.
+        TYPE
+            DESCRIPTION.
+
+        '''
+        try:
+            
+            tea = Teaches.objects.get(_id=faculty_id)
+        except DoesNotExist:
+            return (False,"Record doesn't exist",{})
+        
+        return (True, "Record was found" , tea)
+    def createStudentNotifications(self,fac,dept,name,notification,upload,targets,has_U = False,type_="Emergency"):
+        """
+        
+
+        Parameters
+        ----------
+        fac : Faculty
+            DESCRIPTION.
+        dept : Department
+            DESCRIPTION.
+        name : String
+            DESCRIPTION.
+        notification : String
+            DESCRIPTION.
+        upload : Uploads
+            DESCRIPTION.
+        targets : List of Students, optional
+            DESCRIPTION. The default is list.
+        has_U : TYPE, optional
+            DESCRIPTION. The default is False.
+        type_ : TYPE, optional
+            DESCRIPTION. The default is "Emergency".
+
+        Returns
+        -------
+        bool
+            DESCRIPTION.
+        str
+            DESCRIPTION.
+
+        """
+        #try:
+        logger.info(len(targets))
+        if(has_U==False):
+            note = StudentNotifications(notification_name = name,  notification = notification,type_ = type_ ,note_time = timed,registered_department = dept ,responible_faculty = fac,targets=targets)
+        else:
+            note = StudentNotifications(notification_name = name, upload=upload, notification = notification,type_ = type_ ,note_time = timed,registered_department = dept ,responible_faculty = fac,targets=targets,has_upload=True)
+        note.save()
+        #except:
+           # return (False,"Input was unsuccesful")
+        return (True,"Input was Successful")
+    
+    def getStudentDepartmentByID(self,id_):
+        """
+        
+
+        Parameters
+        ----------
+        id_ : Integer
+            DESCRIPTION.
+
+        Returns
+        -------
+        bool
+            DESCRIPTION.
+        str
+            DESCRIPTION.
+        TYPE
+            DESCRIPTION.
+
+        """
+        try:
+            
+            stu = self.getStudent(id_)
+            query = stu[2]
+            maj = query.student_major
+            dept = maj.major_department
+        except DoesNotExist:
+            return {}
+        
+        return dept
+       
+    def getFacultyDepartmentByID(self,id_):
+        """
+        
+
+        Parameters
+        ----------
+        id_ : Integer
+            DESCRIPTION.
+
+        Returns
+        -------
+        bool
+            DESCRIPTION.
+        str
+            DESCRIPTION.
+        TYPE
+            DESCRIPTION.
+        """
+        try:
+            
+            tea = self.getFaculty(id_)
+            query = tea[2]
+            maj = query.faculty_major
+            dept = maj.major_department
+        except DoesNotExist:
+            return {}
+        
+        return dept
+    def getUploadForNotification(self,objectId):
+        '''
+        
+
+        Parameters
+        ----------
+        objectId : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        bool
+            DESCRIPTION.
+        str
+            DESCRIPTION.
+        TYPE
+            DESCRIPTION.
+
+        '''
+        try:
+            note = BaseNotifications.objects.get(id=objectId)
+            upload = note.upload
+            
+            
+        except DoesNotExist:
+            return (False,"Record doesn't exist",{})
+        
+        return (True, "Record was found" , upload)
+    def getStudentNotifications(self,id_):
+        """
+        
+
+        Parameters
+        ----------
+        id_ : Integer
+            DESCRIPTION.
+        type_ : Integer, optional
+            DESCRIPTION. The default is 1.
+
+        Returns
+        -------
+        bool
+            DESCRIPTION.
+        str
+            DESCRIPTION.
+        TYPE
+            DESCRIPTION.
+
+        """
+        try:
+            
+            deptT = self.getStudentDepartmentByID(id_=id_)
+            st = self.getStudent(id_)
+            student = st[2]
+            queryset = StudentNotifications.objects(registered_department=deptT)
+            
+            list_of_objects = []
+            for object_ in queryset:
+                targets = object_.targets
+                if len(targets) == 0:
+                    list_of_objects.append(object_)
+                else:
+                    if student in targets:
+                        list_of_objects.append(object_)
+                    
+        except DoesNotExist:
+            return (False,"Record doesn't exist",{})
+        
+        return (True, "Record was found" , list_of_objects)
+    
+    def createFacultyNotifications(self,fac,dept,name,notification,upload,has_U = False,type_="Emergency"):
+        """
+        
+
+        Parameters
+        ----------
+        id_ : Integer
+            DESCRIPTION.
+
+        Returns
+        -------
+        bool
+            DESCRIPTION.
+        str
+            DESCRIPTION.
+        TYPE
+            DESCRIPTION.
+
+        """
+        try:
+            if(has_U==False):
+                note = FacultyNotifications(notification_name = name,  notification = notification,type_ = type_ ,note_time = timed,registered_department = dept ,responible_faculty = fac)
+            else:
+                note = FacultyNotifications(notification_name = name, upload=upload, notification = notification,type_ = type_ ,note_time = timed,registered_department = dept ,responible_faculty = fac)
+            note.save()
+        except:
+            return (False,"Input was unsuccesful")
+        return (True,"Input was Successful")
+    
+    def getFacultyNotifications(self,id_):
+        """
+        
+
+        Parameters
+        ----------
+        id_ : Integer
+            DESCRIPTION.
+        type_ : Integer, optional
+            DESCRIPTION. The default is 1.
+
+        Returns
+        -------
+        bool
+            DESCRIPTION.
+        str
+            DESCRIPTION.
+        TYPE
+            DESCRIPTION.
+
+        """
+        try:
+            
+            deptT = self.getFacultyDepartmentByID(id_=id_)
+            
+            queryset = FacultyNotifications.objects(registered_department=deptT)
+            
+        except DoesNotExist:
+            return (False,"Record doesn't exist",{})
+        
+        return (True, "Record was found" , queryset)
+    def getOneUpload(self,objectid):
+        '''
+        
+
+        Parameters
+        ----------
+        objectid : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        '''
+        try:
+            uploads = Uploads.objects.get(id = objectid )
+            
+        except:
+            return False,"Input was unsuccesful"
+        
+        return True,"Input was Successful",uploads
+    def getUpload(self,location):
+        '''
+        
+
+        Parameters
+        ----------
+        location : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        '''
+        # try:
+        uploads = Uploads.objects(location = location )
+            
+        # except:
+        #     return False,"Input was unsuccesful"
+        
+        return True,"Input was Successful",uploads
+    
     def dropCollections(self):
         """
         dropCollections() deletes all the collections stored in the database
@@ -648,41 +1128,70 @@ class DatabaseAdapter:
         StudentTakes.drop_collection()
         SemesterScores.drop_collection()
         SemesterSchedule.drop_collection()
-        Notifications.drop_collection()
+        FacultyNotifications.drop_collection()
         Teaches.drop_collection()
         StudentTakes.drop_collection()
         SemesterScores.drop_collection()
         CoursesPerMajor.drop_collection()
+        SemesterSchedule.drop_collection()
+        Uploads.drop_collection()
+        StudentNotifications.drop_collection()
     
-    def getCPMByID(self,student_id):
+    def isFaculty(self,Objectid):
         '''
         
 
         Parameters
         ----------
-        student_id : Integer
+        Objectid : TYPE
             DESCRIPTION.
 
         Returns
         -------
-        bool
-            DESCRIPTION.
-        str
-            DESCRIPTION.
-        TYPE
+        isMem : TYPE
             DESCRIPTION.
 
         '''
+        isMem = True
         try:
+            stud = Faculty.objects.get(id =Objectid)
+        except:
+            isMem = False
             
-            sTuple = self.getStudent(student_id)
-            student = sTuple[2]
-            maj = Majors.objects.get(major=student.student_major.major)
-            stu = self.getCPM(maj)
-        except DoesNotExist:
-            return (False,"Record doesn't exist",{})
+        return isMem
+    def isStudent(self,Objectid):
+        """
         
-        return stu
+
+        Parameters
+        ----------
+        Objectid : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        isMem : TYPE
+            DESCRIPTION.
+
+        """
+        isMem = True
+        try:
+            stud = Students.objects.get(id =Objectid)
+        except:
+            isMem = False
+            
+        return isMem
+    def isMember(self,ObjectId):
+        member = self.isStudent(ObjectId)
+        if member == True:
+            return True
+        
+        member = self.isFaculty(ObjectId)
+        if member == True:
+            return True
+        else:
+            return False
+        
     def dummyInnitialize(self):
         """
         dummyInnitialize() generates fake database records for prototype testing 
@@ -701,8 +1210,10 @@ class DatabaseAdapter:
         MajeEr = ["Computer Science" , "Philosophy", "Accounting"]
         Facaty = [["Mr Wang", 9725001001 ],["Mr Edwards", 9725001002],["Mr Henry", 9725001003]]
         Studs = [["Bob", 1712510101],["Doe", 1712510103],["Albert", 1712510102]]
-        
-        
+        notes = "Notification details"
+        fnames =["Faculty Note 1","Faculty Note 2","Faculty Note 3"]
+        snames = ["Student Note 1","Student Note 2","Student Note 3"]
+        timess = [[8,15,0],[9,50,0],[13,40,0]]
         for campus in Campases:
             self.createCampus(campus)
         
@@ -772,7 +1283,35 @@ class DatabaseAdapter:
         for items in takes:
             self.createSemesterScores(studentTaking=items)
         
+        build = Building.objects.first()
+        semess = Semesters.objects.first()
+        mjori = Majors.objects.first()
+        cosec = Courses.objects.first()
         
+        for item in range(3):
+            timer=time(timess[item][0],timess[item][1],timess[item][2])
+            strTimer = timer.strftime("%H:%M:%S")
+            self.createSchedule(building=build,semester=semess,major=mjori,course=cosec,year=2020+item,timer=strTimer)
+        if SemesterSchedule.objects.count() != 3:
+            return (False, "Semester Schedulle taking count is wrong!" + str(SemesterSchedule.objects.count()))
+        fac = Faculty.objects.first()
+        dept = Departments.objects.first()
+        
+        
+        
+        for item in range(3):
+            self.createFacultyNotifications(fac=fac,dept=dept,name=fnames[item],notification=notes,upload="")
+            
+        for item in range(3):
+            self.createStudentNotifications(fac=fac,dept=dept,name=snames[item],notification=notes,upload="")
+        
+        studentss = [[Students.objects[0],Students.objects[1]],[Students.objects[0]],[Students.objects[1]]]
+        for item in range(2):
+            self.createTeaches(teacher=fac,schedule=SemesterSchedule.objects[item],students=studentss[item])
+        
+        self.createTeaches(teacher=Faculty.objects[1],schedule=SemesterSchedule.objects[2],students=studentss[2])
+            
+            
         if Campus.objects.count() != 3:
             return (False, "Campus count is wrong!" + str(Campus.objects.count()))
         
@@ -796,14 +1335,23 @@ class DatabaseAdapter:
         
         if Students.objects.count() != 3:
             return (False, "Students count is wrong!" + str(Students.objects.count()))
+        
         if StudentTakes.objects.count() != 3:
-            return (False, "Students taking count is wrong!" + str(Students.objects.count()))
+            return (False, "Students taking count is wrong!" + str(StudentTakes.objects.count()))
         
         if SemesterScores.objects.count() != 3:
-            return (False, "Semester Scores taking count is wrong!" + str(Students.objects.count()))
+            return (False, "Semester Scores taking count is wrong!" + str(SemesterScores.objects.count()))
         
         if CoursesPerMajor.objects.count() != 3:
-            return (False, "Course per major taking count is wrong!" + str(Students.objects.count()))
+            return (False, "Course per major taking count is wrong!" + str(CoursesPerMajor.objects.count()))
+        
+        
+        if FacultyNotifications.objects.count() != 3:
+            return (False, "Course per major taking count is wrong!" + str(FacultyNotifications.objects.count()))
+        if StudentNotifications.objects.count() != 3:
+            return (False, "Course per major taking count is wrong!" + str(StudentNotifications.objects.count()))
+        if Teaches.objects.count() != 3:
+            return (False, "Course per major taking count is wrong!" + str(Teaches.objects.count()))
         return (True, "Done!")
         
     def writeUpload(self,file,member,file_name,sub_type = 1):
@@ -825,13 +1373,18 @@ class DatabaseAdapter:
 
         """
         
-        location = self.createLocationTuple(member,sub_type)
-        upload = Uploads(file_name=file_name,location = location,uploader=member,upload_time=time)
-        upload.file.put(file, content_type = mimetypes.guess_type(file_name)[0])
+        is_teacher = self.isFaculty(member)
+        if is_teacher:
+            location = self.facultyLocationTuple(member,sub_type)
+        else:
+            location = self.studentLocationTuple(member,sub_type)
+        upload = Uploads(file_name=file_name,location = location,uploader=member,upload_time=timed)
+        content_type,encoding = mimetypes.guess_type(file_name)
+        upload.file.put(file,content_type =content_type  )
         upload.save()
-        return upload
+        return True,upload
     
-    def createLocationTuple(self,member,sub_type):
+    def facultyLocationTuple(self,person,sub_type):
         """
         createLocationTuple(member : Teaches,sub_type :Integer) will be used to generate a string name for the location of the file the user will upload
 
@@ -846,12 +1399,59 @@ class DatabaseAdapter:
             The strings that will be used to identify the file
 
         """
-        dept = str(member.teacher_schedule.scheduled_major.major_department)
-        major = str(member.teacher_schedule.scheduled_major.major)
-        course = str(member.teacher_schedule.scheduled_course.course_name)
-        teach = str(member.teacher.person_name)
-        semester = str(member.teacher_schedule.scheduled_semester.semester_name)
-        sub_type = str(constants.submission_type[sub_type])
-        location = " ".join((dept,major,course,teach,semester,sub_type))
-        return location
+        queryset = Teaches.objects(teacher=person)
+        member = queryset[0]
         
+        tempdept = member.teacher_schedule.scheduled_major.major_department.department_name
+        tempmajor = member.teacher_schedule.scheduled_major.major
+        tempcourse = member.teacher_schedule.scheduled_course.course_name
+        tempsemester = member.teacher_schedule.scheduled_semester.semester_name
+        tempsub_type = constants.submission_type[sub_type]
+        
+        dept = str(tempdept)
+        major = str(tempmajor)
+        course = str(tempcourse)
+        semester = str(tempsemester)
+        sub_type = str(tempsub_type)
+        
+        location = " ".join((dept,major,course,semester,sub_type))
+        logger.info(location)
+        loci = str(hashlib.md5(location.encode()).hexdigest())
+        logger.info(loci)
+        return loci
+    
+    def studentLocationTuple(self,person,sub_type):
+        """
+        createLocationTuple(member : Teaches,sub_type :Integer) will be used to generate a string name for the location of the file the user will upload
+
+        Parameters
+        ----------
+        member : Teaches
+            Contains a document with the relevant information to create a file location
+
+        Returns
+        -------
+        location : tuple of strings
+            The strings that will be used to identify the file
+
+        """
+        queryset = StudentTakes.objects(student_taking=person)
+        member = queryset[0]
+        
+        tempdept = member.student_taking.student_major.major_department.department_name
+        tempmajor = member.student_taking.student_major.major
+        tempcourse = member.course_taken.course_name
+        tempsemester = member.semester_taken.semester_name
+        tempsub_type = constants.submission_type[sub_type]
+    
+        dept = str(tempdept)
+        major = str(tempmajor)
+        course = str(tempcourse)
+        semester = str(tempsemester)
+        sub_type = str(tempsub_type)
+        
+        location = " ".join((dept,major,course,semester,sub_type))
+        logger.info(location)
+        loci = str(hashlib.md5(location.encode()).hexdigest())
+        logger.info(loci)
+        return loci

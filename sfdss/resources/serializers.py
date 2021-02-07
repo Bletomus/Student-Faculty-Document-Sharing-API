@@ -1,5 +1,5 @@
 from rest_framework_mongoengine import serializers
-from resources.models import Campus,Semesters,Courses,Departments,Building,Majors,Faculty,Students,CoursesPerMajor,StudentTakes,SemesterSchedule,Notifications,Uploads,SemesterScores,Teaches
+from resources.models import Campus,Semesters,Courses,Departments,Building,Majors,Faculty,Students,CoursesPerMajor,StudentTakes,SemesterSchedule,FacultyNotifications,StudentNotifications,Uploads,SemesterScores,Teaches
 
 class CampusSerializer(serializers.DocumentSerializer):
     class Meta:
@@ -51,9 +51,9 @@ class CoursesPerMajorSerializer(serializers.DocumentSerializer):
         
 class StudentTakesSerializer(serializers.DocumentSerializer):
     class Meta:
-        depth = 2
+        depth = 5
         model = StudentTakes
-        fields = ['student_taking','year_semester','course_taken','semester_taken']
+        fields = '__all__'
         
 class SemesterScoresSerializer(serializers.DocumentSerializer):
     class Meta:
@@ -63,20 +63,30 @@ class SemesterScoresSerializer(serializers.DocumentSerializer):
         
 class SemesterScheduleSerializer(serializers.DocumentSerializer):
     class Meta:
+        depth = 2
         model = SemesterSchedule
         fields = '__all__'
         
-class NotificationsSerializer(serializers.DocumentSerializer):
+class StudentNotificationsSerializer(serializers.DocumentSerializer):
     class Meta:
-        model = Notifications
+        depth = 2
+        model = StudentNotifications
+        fields = '__all__'
+        
+class FacultyNotificationsSerializer(serializers.DocumentSerializer):
+    class Meta:
+        depth = 2
+        model = FacultyNotifications
         fields = '__all__'
 
 class UploadsSerializer(serializers.DocumentSerializer):
     class Meta:
+        depth = 5
         model = Uploads
         fields = '__all__'
     
 class TeachesSerializer(serializers.DocumentSerializer):
     class Meta:
+        depth = 5
         model = Teaches
         fields = '__all__'

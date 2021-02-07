@@ -7,52 +7,12 @@ from rest_framework.parsers import FileUploadParser
 from rest_framework.exceptions import ParseError
 from resources.DatabaseAdapter import DatabaseAdapter
 from resources.Constants import DatabaseConstants
-from resources.serializers import FacultySerializer
+from resources.serializers import FacultySerializer,TeachesSerializer
 from resources.DatabaseAdapter import DatabaseAdapter
 from mongoengine.errors import DoesNotExist
 constants = DatabaseConstants()
 adapter = DatabaseAdapter()
 
-@api_view(['Put'])
-@parser_classes([FileUploadParser])
-def upload_file(request,person_id,file_name):
-    """
-    upload_file(person_id : LONG,file_name : STRING) takes a member id and parses the uploaded file, under the registered member, into the database
-    
-
-    Parameters
-    ----------
-    request : HTTP request
-        Constains the posted data to be uploaded into the database including the file to be uploaded
-    person_id : Long
-        Persons number used to identify their record in the database
-    file_name : String
-        Contains the name of the file with underscores
-        
-    Returns
-    -------
-    HttpResponse : JSON
-        JSON file containing the information about the uploaded file
-
-    """
-    try:
-        faculty_member = Faculty.objects.get(person_number = person_id)
-    except:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    
-    if 'file' not in request.data:
-            raise ParseError("Empty content")
-    
-    f = request.data['file']
-    
-    if f.size > constants.max:
-        raise ParseError("File is too large")
-        
-    adapter = DatabaseAdapter() 
-    with f as fd:
-        uploaded = adapter.writeUpload(file=f,member=faculty_member,file_name=file_name)
-    
-    return Response({})
 
 @api_view(['Get'])
 def validate_teacher(request,person_id):
@@ -73,11 +33,14 @@ def validate_teacher(request,person_id):
 
     """
     try:
-        adapter.getFaculty(person_id)
+        faculty = adapter.getFaculty(person_id)
     except:
         return Response(data={},status=status.HTTP_404_NOT_FOUND)
     
-    return Response(data={},status=status.HTTP_200_OK)
+    if faculty[0] == True: 
+        return Response(data={},status=status.HTTP_200_OK)
+    else:
+        return Response(data={},status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['Get'])
 def get_faculty_details(request,person_id):
@@ -106,6 +69,40 @@ def get_faculty_details(request,person_id):
         if request.method == 'GET':
             serializer = FacultySerializer(faculty[2],)
             return Response(serializer.data)
+    else:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+@api_view(['Get'])
+def get_Teaches(request,person_id):
+    '''
+    
+
+    Parameters
+    ----------
+    request : TYPE
+        DESCRIPTION.
+    person_id : Integer
+        DESCRIPTION.
+
+    Returns
+    -------
+    TYPE
+        DESCRIPTION.
+
+    '''
+    try:
+        faculty = adapter.getTeaches(person_id)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if faculty[0] ==True :
+        queryset = faculty[2]
+        if len(queryset) > 0:
+            
+            if request.method == 'GET':
+                serializer = TeachesSerializer(queryset,many=True)
+                return Response(serializer.data)
+        else:
+            Response(status=status.HTTP_404_NOT_FOUND)
     else:
         return Response(status=status.HTTP_404_NOT_FOUND)
     

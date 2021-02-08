@@ -1208,7 +1208,7 @@ class DatabaseAdapter:
         Dapartment = ["SCIE", "SAH", "SE"]
         Buildang = ["A" ,"B" ,"C" ]
         MajeEr = ["Computer Science" , "Philosophy", "Accounting"]
-        Facaty = [["Mr Wang", 9725001001 ],["Mr Edwards", 9725001002],["Mr Henry", 9725001003]]
+        Facaty = [["Mr. Wang", 9725001001 ],["Mr. Edwards", 9725001002],["Mr. Henry", 9725001003]]
         Studs = [["Bob", 1712510101],["Doe", 1712510103],["Albert", 1712510102]]
         notes = "Notification details"
         fnames =["Faculty Note 1","Faculty Note 2","Faculty Note 3"]

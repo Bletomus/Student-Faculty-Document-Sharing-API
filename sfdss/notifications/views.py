@@ -17,22 +17,7 @@ constants = DatabaseConstants()
 modalConstants= ModelConstants()
 @api_view(['Get'])
 def download_file(request,objectid):
-    '''
-    
-
-    Parameters
-    ----------
-    request : TYPE
-        DESCRIPTION.
-    objectid : TYPE
-        DESCRIPTION.
-
-    Returns
-    -------
-    TYPE
-        DESCRIPTION.
-
-    '''
+   
     
     try:
         
@@ -53,22 +38,7 @@ def download_file(request,objectid):
     
 @api_view(['Get'])
 def download_For_Notification_File(request,objectid):
-    '''
-    
-
-    Parameters
-    ----------
-    request : TYPE
-        DESCRIPTION.
-    objectid : TYPE
-        DESCRIPTION.
-
-    Returns
-    -------
-    TYPE
-        DESCRIPTION.
-
-    '''
+   
     try:
         
         uploads = adapter.getUploadForNotification(objectid)
@@ -85,25 +55,7 @@ def download_For_Notification_File(request,objectid):
 @api_view(['Put','Post'])
 @parser_classes([MultiPartParser])
 def upload_file(request,person_id,sub_type,format = None):
-    """
-    upload_file(person_id : LONG,file_name : STRING) takes a member id and parses the uploaded file, under the registered member, into the database
-    
-
-    Parameters
-    ----------
-    request : HTTP request
-        Constains the posted data to be uploaded into the database including the file to be uploaded
-    person_id : Long
-        Persons number used to identify their record in the database
-    file_name : String
-        Contains the name of the file with underscores
-        
-    Returns
-    -------
-    HttpResponse : JSON
-        JSON file containing the information about the uploaded file
-
-    """
+  
    
         
     member = adapter.isMember(person_id)
@@ -138,25 +90,7 @@ def upload_file(request,person_id,sub_type,format = None):
 @api_view(['Put','Post'])
 @parser_classes([MultiPartParser])
 def upload_file_in_note(request,person_id):
-    """
-    upload_file(person_id : LONG,file_name : STRING) takes a member id and parses the uploaded file, under the registered member, into the database
-    
-
-    Parameters
-    ----------
-    request : HTTP request
-        Constains the posted data to be uploaded into the database including the file to be uploaded
-    person_id : Long
-        Persons number used to identify their record in the database
-    file_name : String
-        Contains the name of the file with underscores
-        
-    Returns
-    -------
-    HttpResponse : JSON
-        JSON file containing the information about the uploaded file
-
-    """
+   
     try:
         member = adapter.getFaculty(person_id)
     except:
@@ -211,22 +145,7 @@ def upload_file_in_note(request,person_id):
 
 @api_view(['Get'])
 def get_faculty_notifications(request,person_id):
-    '''
     
-
-    Parameters
-    ----------
-    request : TYPE
-        DESCRIPTION.
-    person_id : TYPE
-        DESCRIPTION.
-
-    Returns
-    -------
-    TYPE
-        DESCRIPTION.
-
-    '''
     try:
         faculty_notifications = adapter.getFacultyNotifications(person_id)
     except:
@@ -244,22 +163,7 @@ def get_faculty_notifications(request,person_id):
     
 @api_view(['Get'])
 def get_student_notifications(request,person_id):
-    '''
-    
-
-    Parameters
-    ----------
-    request : TYPE
-        DESCRIPTION.
-    person_id : TYPE
-        DESCRIPTION.
-
-    Returns
-    -------
-    TYPE
-        DESCRIPTION.
-
-    '''
+   
     try:
         student_notifications = adapter.getStudentNotifications(person_id)
     except:
@@ -277,20 +181,7 @@ def get_student_notifications(request,person_id):
     
 @api_view(['Post'])
 def get_Uploads(request):
-    '''
     
-
-    Parameters
-    ----------
-    request : TYPE
-        DESCRIPTION.
-
-    Returns
-    -------
-    TYPE
-        DESCRIPTION.
-
-    '''
     try:
         location = request.data.get('location')
     except:

@@ -1,3 +1,4 @@
 sfdss/tests
 sfdss/resources/Constants.py
+sfdss/resources/__pycache__
 sfdss/sfdss/settings.py

@@ -2,3 +2,8 @@ sfdss/tests
 sfdss/resources/Constants.py
 sfdss/resources/__pycache__
 sfdss/sfdss/settings.py
+sfdss/notifications/__pycache__
+sfdss/sfdss/__pycache__
+sfdss/students/__pycache__
+sfdss/teachers/__pycache__
+sfdss/uploads/__pycache__

@@ -590,7 +590,7 @@ class DatabaseAdapter:
             self.createFacultyNotifications(fac=fac,dept=dept,name=fnames[item],notification=notes,upload="")
             
         for item in range(3):
-            self.createStudentNotifications(fac=fac,dept=dept,name=snames[item],notification=notes,upload="")
+            self.createStudentNotifications(fac=fac,dept=dept,name=snames[item],notification=notes,upload="",targets=[])
         
         studentss = [[Students.objects[0],Students.objects[1]],[Students.objects[0]],[Students.objects[1]]]
         for item in range(2):

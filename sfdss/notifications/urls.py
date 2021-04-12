@@ -8,5 +8,5 @@ urlpatterns = [
     path('get_Uploads/',views.get_Uploads,name='get_Uploads'),
     path('download_For_Notification_File/<objectid>',views.get_Uploads,name='download_For_Notification_File'),
     path('download_file/<objectid>',views.download_file,name='download_file'),
-    path('upload_file_in_note/<int:person_id>',views.upload_file_in_note,name='upload_file_in_note'),
+    path('upload_file_in_note/<int:person_id>/',views.upload_file_in_note,name='upload_file_in_note'),
     ]

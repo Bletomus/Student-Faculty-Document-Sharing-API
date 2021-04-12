@@ -21,7 +21,9 @@ models module contains the schema like design of how mongodb will store data as 
     Teaches : Contains informaiton about the teaching schedule of teachers
 """
 
-
+# Critisms student takes could have been merged with courses per major (specific to the school)
+# Students and facutly could have had a single base class instead of being two seperate classes
+# student takes should have had semester schedule inside of it as a reference
 
 class Campus(Document):
     """
@@ -212,7 +214,7 @@ class CoursesPerMajor(Document):
     semester_course = ReferenceField(Semesters,required = True,reverse_delete_rule=CASCADE)
     year_course = IntField(required = True,choices=constants.years)
     major_cpm = ReferenceField(Majors,required = True,reverse_delete_rule=CASCADE)
-    module = IntField(required = True,unique_with=['major_cpm'], choices = constants.modules)
+    module = IntField(required = True, choices = constants.modules)
     elective = BooleanField(default=False)
     course_cpm = ReferenceField(Courses,required = True,unique_with=['major_cpm','module'],reverse_delete_rule=CASCADE)
 
@@ -236,6 +238,7 @@ class StudentTakes(Document):
     course_taken = ReferenceField(Courses,required = True)
     semester_taken = ReferenceField(Semesters,required = True,unique_with=['year_semester','course_taken','student_taking'])
     
+
     
 class SemesterScores(Document):
     """

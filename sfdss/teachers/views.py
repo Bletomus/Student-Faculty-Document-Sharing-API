@@ -61,18 +61,18 @@ def get_Teaches(request,person_id):
     else:
         return Response(status=status.HTTP_404_NOT_FOUND)
     
-@api_view(['Get'])
-def uhhhhh(request):
+# @api_view(['Get'])
+# def uhhhhh(request):
     
-    try:
-        faculty = adapter.getFaculty(9725001001)
-    except:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    if faculty[0] ==True :
+#     try:
+#         faculty = adapter.getFaculty(9725001001)
+#     except:
+#         return Response(status=status.HTTP_404_NOT_FOUND)
+#     if faculty[0] ==True :
         
-        if request.method == 'GET':
-            item = faculty[2]
-            strr = item.person_name + "\n" + "\n" + item.gender + "\n" + item.nationality+ "\n" + item.faculty_major.major + "\n" 
-            return Response(strr)
-    else:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+#         if request.method == 'GET':
+#             item = faculty[2]
+#             strr = item.person_name + "\n" + "\n" + item.gender + "\n" + item.nationality+ "\n" + item.faculty_major.major + "\n" 
+#             return Response(strr)
+#     else:
+#         return Response(status=status.HTTP_404_NOT_FOUND)

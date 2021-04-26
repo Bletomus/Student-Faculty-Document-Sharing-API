@@ -416,6 +416,7 @@ class DatabaseAdapter:
             return (False,"Record doesn't exist",{})
         
         return (True, "Record was found" , queryset)
+    
     def getOneUpload(self,objectid):
         
         try:
@@ -425,13 +426,14 @@ class DatabaseAdapter:
             return False,"Input was unsuccesful"
         
         return True,"Input was Successful",uploads
+    
     def getUpload(self,location):
         
-        # try:
-        uploads = Uploads.objects(location = location )
+        try:
+            uploads = Uploads.objects(location = location )
             
-        # except:
-        #     return False,"Input was unsuccesful"
+        except:
+            return False,"Input was unsuccesful"
         
         return True,"Input was Successful",uploads
     
